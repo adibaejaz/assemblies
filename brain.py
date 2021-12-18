@@ -184,6 +184,7 @@ class Brain:
 			if self.save_size:
 				self.areas[area].saved_w.append(self.areas[area].w)
 
+
 	def project_into(self, area, from_stimuli, from_areas, verbose=False):
 	# projecting everything in from stim_in[area] and area_in[area]
 	# calculate: inputs to self.connectomes[area] (previous winners)

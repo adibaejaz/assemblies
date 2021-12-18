@@ -45,7 +45,7 @@ CLEAR_DET = "CLEAR_DET"
 # RECURRENT AREAS ARE "WEAKLY CONNECTED" WITH THEMSELVES IN THE PLASTICITIES MAP
 AREAS = [LEX, DET, SUBJ, OBJ, VERB, ADJ, ADVERB, PREP, PREP_P, RELPRONOUN]
 EXPLICIT_AREAS = [LEX]
-RECURRENT_AREAS = [SUBJ, OBJ, VERB, ADJ, ADVERB, PREP, PREP_P. RELPRONOUN]
+RECURRENT_AREAS = [SUBJ, OBJ, VERB, ADJ, ADVERB, PREP, PREP_P, RELPRONOUN]
 
 RUSSIAN_AREAS = [LEX, NOM, VERB, ACC, DAT]
 RUSSIAN_EXPLICIT_AREAS = [LEX]
@@ -112,13 +112,16 @@ def generic_trans_verb(index):
 		FiberRule(DISINHIBIT, LEX, VERB, 0),
 		FiberRule(DISINHIBIT, VERB, SUBJ, 0),
 		FiberRule(DISINHIBIT, VERB, ADVERB, 0),
+		FiberRule(DISINHIBIT, VERB, RELPRONOUN, 0), # TODO
 		AreaRule(DISINHIBIT, ADVERB, 1),
+		AreaRule(DISINHIBIT, RELPRONOUN, 1), # TODO
 		],
 		"POST_RULES": [
 		FiberRule(INHIBIT, LEX, VERB, 0),
 		AreaRule(DISINHIBIT, OBJ, 0),
 		AreaRule(INHIBIT, SUBJ, 0),
 		AreaRule(INHIBIT, ADVERB, 0),
+		AreaRule(INHIBIT, RELPRONOUN, 0), # TODO
 		FiberRule(DISINHIBIT, PREP_P, VERB, 0),
 		]
 	}
@@ -130,12 +133,16 @@ def generic_intrans_verb(index):
 		FiberRule(DISINHIBIT, LEX, VERB, 0),
 		FiberRule(DISINHIBIT, VERB, SUBJ, 0),
 		FiberRule(DISINHIBIT, VERB, ADVERB, 0),
+		FiberRule(DISINHIBIT, VERB, RELPRONOUN, 0),  # TODO
 		AreaRule(DISINHIBIT, ADVERB, 1),
+		AreaRule(DISINHIBIT, RELPRONOUN, 1), # TODO
+
 		],
 		"POST_RULES": [
 		FiberRule(INHIBIT, LEX, VERB, 0),
 		AreaRule(INHIBIT, SUBJ, 0),
 		AreaRule(INHIBIT, ADVERB, 0),
+		AreaRule(INHIBIT, RELPRONOUN, 0), # TODO
 		FiberRule(DISINHIBIT, PREP_P, VERB, 0),
 		]
 	}
@@ -216,13 +223,19 @@ def generic_preposition(index):
 	}
 
 
-# TODO: PRE AND POST-RULES FOR EACH AREA
-# def generic_rel_pronoun(index):
-# 	return {
-# 		"index": index,
-# 		"PRE_RULES": [],
-# 		"POST_RULES": []
-# 	}
+def generic_rel_pronoun(index):
+	return {
+		"index": index,
+		"PRE_RULES": [
+			AreaRule(DISINHIBIT, RELPRONOUN, 0),
+			FiberRule(DISINHIBIT, LEX, RELPRONOUN, 0)
+		],
+		"POST_RULES": [
+			FiberRule(INHIBIT, LEX, RELPRONOUN, 0),
+			AreaRule(INHIBIT, RELPRONOUN, 1),
+		]
+	}
+
 
 LEXEME_DICT = {
 	"the" : generic_determinant(0),
@@ -339,8 +352,11 @@ RUSSIAN_LEXEME_DICT = {
 }
 
 
+# TODO: add connections v->rp, s->v, o->v since v2 modifies s or o, and rp->lex
 ENGLISH_READOUT_RULES = {
-	VERB: [LEX, SUBJ, OBJ, PREP_P, ADVERB, ADJ],
+	VERB: [LEX, SUBJ, OBJ, PREP_P, ADVERB, ADJ, RELPRONOUN], # TODO
+    # VERB: [LEX, SUBJ, OBJ, PREP_P, ADVERB, ADJ],
+	# SUBJ: [LEX, VERB, DET, ADJ, PREP_P],
 	SUBJ: [LEX, DET, ADJ, PREP_P],
 	OBJ: [LEX, DET, ADJ, PREP_P],
 	PREP_P: [LEX, PREP, ADJ, DET],
@@ -519,8 +535,8 @@ class RussianParserBrain(ParserBrain):
 
 
 class EnglishParserBrain(ParserBrain):
-	#TODO: CHANGE LEX_K TO 23
-	def __init__(self, p, non_LEX_n=10000, non_LEX_k=100, LEX_k=20, 
+
+	def __init__(self, p, non_LEX_n=10000, non_LEX_k=100, LEX_k=23,
 		default_beta=0.2, LEX_beta=1.0, recurrent_beta=0.05, interarea_beta=0.5, verbose=False):
 		ParserBrain.__init__(self, p, 
 			lexeme_dict=LEXEME_DICT, 
@@ -542,8 +558,7 @@ class EnglishParserBrain(ParserBrain):
 		self.add_area(PREP_P, non_LEX_n, non_LEX_k, default_beta)
 		self.add_area(DET, non_LEX_n, DET_k, default_beta)
 		self.add_area(ADVERB, non_LEX_n, non_LEX_k, default_beta)
-		# TODO
-		# self.add_area(RELPRONOUN, non_LEX_n, non_LEX_k, default_beta)
+		self.add_area(RELPRONOUN, non_LEX_n, non_LEX_k, default_beta)
 
 		# LEX: all areas -> * strong, * -> * can be strong
 		# non LEX: other areas -> * (?), LEX -> * strong, * -> * weak
@@ -578,7 +593,6 @@ class EnglishParserBrain(ParserBrain):
 			area_k = self.areas[area_name].k
 			threshold = min_overlap * area_k
 			nodet_index = DET_SIZE - 1
-			#TODO: WHAT IS THIS UNRESOLVED REFERENCE TO DET_SIZE?
 			nodet_assembly_start = nodet_index * area_k
 			nodet_assembly = set(range(nodet_assembly_start, nodet_assembly_start + area_k))
 			if len((winners & nodet_assembly)) > threshold:
@@ -693,9 +707,7 @@ class ReadoutMethod(Enum):
 
 
 
-# TODO: +3 LEX_K
-# HOW MANY PROJECT ROUNDS?
-def parse(sentence="big dogs chase bad cats", language="English", p=0.1, LEX_k=20,
+def parse(sentence="dogs chase cats who run", language="English", p=0.1, LEX_k=23,
 	project_rounds=20, verbose=True, debug=False, readout_method=ReadoutMethod.FIBER_READOUT):
 
 	if language == "English":
@@ -728,6 +740,8 @@ def parseHelper(b, sentence, p, LEX_k, project_rounds, verbose, debug,
 
 	extreme_debug = False
 
+
+	# MAIN LOOP STARTS
 	for word in sentence:
 		lexeme = lexeme_dict[word]
 		b.activateWord(LEX, word)
@@ -778,9 +792,12 @@ def parseHelper(b, sentence, p, LEX_k, project_rounds, verbose, debug,
 		if debug:
 			print("Starting debugger after the word " + word)
 			debugger.run()
-			
 
-	# Readout
+
+
+	# MAIN LOOP ENDS
+
+	# READOUT
 	# For all readout methods, unfix assemblies and remove plasticity.
 	b.no_plasticity = True
 	for area in all_areas:
@@ -792,6 +809,8 @@ def parseHelper(b, sentence, p, LEX_k, project_rounds, verbose, debug,
 		b.project({}, {area: to_areas})
 		this_word = b.getWord(LEX)
 
+		# print("TO_AREAS:", to_areas)
+
 		for to_area in to_areas:
 			if to_area == LEX:
 				continue
@@ -800,9 +819,11 @@ def parseHelper(b, sentence, p, LEX_k, project_rounds, verbose, debug,
 			dependencies.append([this_word, other_word, to_area])
 
 		for to_area in to_areas:
+			print("TO_AREAS:", to_areas)
 			if to_area != LEX:
 				read_out(to_area, mapping)
-
+				print("TO_AREAS:", to_areas)
+				print("SECOND READOUT DONE")
 
 	def treeify(parsed_dict, parent):
 		for key, values in parsed_dict.items():
@@ -827,6 +848,7 @@ def parseHelper(b, sentence, p, LEX_k, project_rounds, verbose, debug,
 
 	if readout_method == ReadoutMethod.FIBER_READOUT:
 		activated_fibers = b.getActivatedFibers()
+		print("ACTIV FIBS", activated_fibers)
 
 
 		if verbose:
