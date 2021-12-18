@@ -20,6 +20,7 @@ PREP = "PREP"
 PREP_P = "PREP_P"
 ADJ = "ADJ"
 ADVERB = "ADVERB"
+#TODO: ADD RELPRONOUN, CLAUSE AREAS
 
 # Unique to Russian
 NOM = "NOM"
@@ -28,6 +29,8 @@ DAT = "DAT"
 
 # Fixed area stats for explicit areas
 LEX_SIZE = 20
+#TODO: +3 FOR THAT, WHICH, WHO
+
 
 # Actions
 DISINHIBIT = "DISINHIBIT"
@@ -37,15 +40,19 @@ INHIBIT = "INHIBIT"
 ACTIVATE_ONLY = "ACTIVATE_ONLY"
 CLEAR_DET = "CLEAR_DET"
 
-AREAS = [LEX, DET, SUBJ, OBJ, VERB, ADJ, ADVERB, PREP, PREP_P]
+# QUESTION: WHAT DISTINGUISHES RECURRENT AREAS I.E. WHY NOT INCLUDE LEX, DET?
+# FROM BRAINPARSER INIT, LOOKS LIKE RECURRENT_BETA < INTERAREA_BETA < LEX_BETA, SO INCREASING WEIGHTS
+# RECURRENT AREAS ARE "WEAKLY CONNECTED" WITH THEMSELVES IN THE PLASTICITIES MAP
+AREAS = [LEX, DET, SUBJ, OBJ, VERB, ADJ, ADVERB, PREP, PREP_P] #TODO: ADD RELPRONOUN, CLAUSE AREAS
 EXPLICIT_AREAS = [LEX]
-RECURRENT_AREAS = [SUBJ, OBJ, VERB, ADJ, ADVERB, PREP, PREP_P]
+RECURRENT_AREAS = [SUBJ, OBJ, VERB, ADJ, ADVERB, PREP, PREP_P] #TODO: ADD RELPRONOUN, CLAUSE AREAS
 
 RUSSIAN_AREAS = [LEX, NOM, VERB, ACC, DAT]
 RUSSIAN_EXPLICIT_AREAS = [LEX]
 RUSSIAN_LEX_SIZE = 7
 
 
+# QUESTION: WHAT IS THE INDEX? SEEMS LIKE INDEX IN LEX
 AreaRule = namedtuple('AreaRule', ['action', 'area', 'index'])
 FiberRule = namedtuple('FiberRule', ['action', 'area1', 'area2', 'index'])
 FiringRule = namedtuple('FiringRule', ['action'])
@@ -208,6 +215,15 @@ def generic_preposition(index):
 		]
 	}
 
+
+# TODO: PRE AND POST-RULES FOR EACH AREA
+# def generic_rel_pronoun(index):
+# 	return {
+# 		"index": index,
+# 		"PRE_RULES": [],
+# 		"POST_RULES": []
+# 	}
+
 LEXEME_DICT = {
 	"the" : generic_determinant(0),
 	"a": generic_determinant(1),
@@ -229,6 +245,10 @@ LEXEME_DICT = {
 	"man": generic_noun(17),
 	"woman": generic_noun(18),
 	"saw": generic_trans_verb(19),
+	# TODO: ADD REL PRONOUNS TO LEX
+	# "that": generic_rel_pronoun(20),
+	# "which": generic_rel_pronoun(21),
+	# "who": generic_rel_pronoun(22),
 }
 
 def generic_russian_verb(index):
@@ -325,6 +345,7 @@ ENGLISH_READOUT_RULES = {
 	DET: [LEX],
 	ADVERB: [LEX],
 	LEX: [],
+	#TODO: ADD FOR CLAUSE, RELPRONOUN
 }
 
 RUSSIAN_READOUT_RULES = {
@@ -494,6 +515,7 @@ class RussianParserBrain(ParserBrain):
 
 
 class EnglishParserBrain(ParserBrain):
+	#TODO: CHANGE LEX_K TO 23
 	def __init__(self, p, non_LEX_n=10000, non_LEX_k=100, LEX_k=20, 
 		default_beta=0.2, LEX_beta=1.0, recurrent_beta=0.05, interarea_beta=0.5, verbose=False):
 		ParserBrain.__init__(self, p, 
@@ -516,6 +538,8 @@ class EnglishParserBrain(ParserBrain):
 		self.add_area(PREP_P, non_LEX_n, non_LEX_k, default_beta)
 		self.add_area(DET, non_LEX_n, DET_k, default_beta)
 		self.add_area(ADVERB, non_LEX_n, non_LEX_k, default_beta)
+		# TODO
+		# self.add_area(RELPRONOUN, non_LEX_n, non_LEX_k, default_beta)
 
 		# LEX: all areas -> * strong, * -> * can be strong
 		# non LEX: other areas -> * (?), LEX -> * strong, * -> * weak
@@ -532,6 +556,7 @@ class EnglishParserBrain(ParserBrain):
 
 		self.update_plasticities(area_update_map=custom_plasticities)
 
+	# QUESTION: WHAT'S THIS WAR OF FIBERS EXCEPTION?
 	def getProjectMap(self):
 		proj_map = ParserBrain.getProjectMap(self)
 		# "War of fibers"
@@ -549,6 +574,7 @@ class EnglishParserBrain(ParserBrain):
 			area_k = self.areas[area_name].k
 			threshold = min_overlap * area_k
 			nodet_index = DET_SIZE - 1
+			#TODO: WHAT IS THIS UNRESOLVED REFERENCE TO DET_SIZE?
 			nodet_assembly_start = nodet_index * area_k
 			nodet_assembly = set(range(nodet_assembly_start, nodet_assembly_start + area_k))
 			if len((winners & nodet_assembly)) > threshold:
@@ -636,6 +662,8 @@ def potentiate_word_in_LEX(b, word, rounds=20):
 	for _ in range(20):
 		b.project({}, {LEX: [LEX]})
 
+
+# USEFUL - FILL THIS OUT
 # "dogs chase cats" experiment, what should happen?
 # simplifying assumption 1: after every project round, freeze assemblies
 # exp version 1: area not fired into until LEX fires into it 
@@ -661,8 +689,9 @@ class ReadoutMethod(Enum):
 
 
 
-
-def parse(sentence="cats chase mice", language="English", p=0.1, LEX_k=20, 
+# TODO: +3 LEX_K
+# HOW MANY PROJECT ROUNDS?
+def parse(sentence="run quickly", language="English", p=0.1, LEX_k=20,
 	project_rounds=20, verbose=True, debug=False, readout_method=ReadoutMethod.FIBER_READOUT):
 
 	if language == "English":
@@ -679,8 +708,12 @@ def parse(sentence="cats chase mice", language="English", p=0.1, LEX_k=20,
 		explicit_areas = RUSSIAN_EXPLICIT_AREAS
 		readout_rules = RUSSIAN_READOUT_RULES
 
-	parseHelper(b, sentence, p, LEX_k, project_rounds, verbose, debug, 
+	dependencies = parseHelper(b, sentence, p, LEX_k, project_rounds, verbose, debug,
 		lexeme_dict, all_areas, explicit_areas, readout_method, readout_rules)
+
+
+	print("Got dependencies: ")
+	print(dependencies)
 
 
 def parseHelper(b, sentence, p, LEX_k, project_rounds, verbose, debug, 
@@ -699,7 +732,7 @@ def parseHelper(b, sentence, p, LEX_k, project_rounds, verbose, debug,
 			print(b.areas[LEX].winners)
 
 		for rule in lexeme["PRE_RULES"]:
-			b.applyRule(rule)
+			b.applyRule(rule) # disinhibit, inhibit areas and fibers associated w/ word
 
 		proj_map = b.getProjectMap()
 		for area in proj_map:
@@ -790,16 +823,23 @@ def parseHelper(b, sentence, p, LEX_k, project_rounds, verbose, debug,
 
 	if readout_method == ReadoutMethod.FIBER_READOUT:
 		activated_fibers = b.getActivatedFibers()
+
+
 		if verbose:
 			print("Got activated fibers for readout:")
 			print(activated_fibers)
 
 		read_out(VERB, activated_fibers)
-		print("Got dependencies: ")
-		print(dependencies)
+		# print("Got dependencies: ")
+		# print(dependencies)
+		return dependencies
+
+		# parsed = {VERB: read_out(VERB, activated_fibers)}
+		# print("Final parse dict: ")
+		# print(parsed)
 
 		# root = pptree.Node(VERB)
-		#treeify(parsed[VERB], root)
+		# treeify(parsed[VERB], root)
 
 	# pptree.print_tree(root)
 
