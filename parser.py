@@ -20,7 +20,8 @@ PREP = "PREP"
 PREP_P = "PREP_P"
 ADJ = "ADJ"
 ADVERB = "ADVERB"
-#TODO: ADD RELPRONOUN, CLAUSE AREAS
+RELPRONOUN = "RELPRONOUN"
+
 
 # Unique to Russian
 NOM = "NOM"
@@ -28,8 +29,7 @@ ACC = "ACC"
 DAT = "DAT"
 
 # Fixed area stats for explicit areas
-LEX_SIZE = 20
-#TODO: +3 FOR THAT, WHICH, WHO
+LEX_SIZE = 23
 
 
 # Actions
@@ -43,9 +43,9 @@ CLEAR_DET = "CLEAR_DET"
 # QUESTION: WHAT DISTINGUISHES RECURRENT AREAS I.E. WHY NOT INCLUDE LEX, DET?
 # FROM BRAINPARSER INIT, LOOKS LIKE RECURRENT_BETA < INTERAREA_BETA < LEX_BETA, SO INCREASING WEIGHTS
 # RECURRENT AREAS ARE "WEAKLY CONNECTED" WITH THEMSELVES IN THE PLASTICITIES MAP
-AREAS = [LEX, DET, SUBJ, OBJ, VERB, ADJ, ADVERB, PREP, PREP_P] #TODO: ADD RELPRONOUN, CLAUSE AREAS
+AREAS = [LEX, DET, SUBJ, OBJ, VERB, ADJ, ADVERB, PREP, PREP_P, RELPRONOUN]
 EXPLICIT_AREAS = [LEX]
-RECURRENT_AREAS = [SUBJ, OBJ, VERB, ADJ, ADVERB, PREP, PREP_P] #TODO: ADD RELPRONOUN, CLAUSE AREAS
+RECURRENT_AREAS = [SUBJ, OBJ, VERB, ADJ, ADVERB, PREP, PREP_P. RELPRONOUN]
 
 RUSSIAN_AREAS = [LEX, NOM, VERB, ACC, DAT]
 RUSSIAN_EXPLICIT_AREAS = [LEX]
@@ -245,11 +245,11 @@ LEXEME_DICT = {
 	"man": generic_noun(17),
 	"woman": generic_noun(18),
 	"saw": generic_trans_verb(19),
-	# TODO: ADD REL PRONOUNS TO LEX
-	# "that": generic_rel_pronoun(20),
-	# "which": generic_rel_pronoun(21),
-	# "who": generic_rel_pronoun(22),
+	"that": generic_rel_pronoun(20),
+	"which": generic_rel_pronoun(21),
+	"who": generic_rel_pronoun(22),
 }
+
 
 def generic_russian_verb(index):
 	return {
@@ -265,6 +265,7 @@ def generic_russian_verb(index):
 		FiberRule(INHIBIT, LEX, VERB, 0)
 		]
 	}
+
 
 def generic_russian_ditransitive_verb(index):
 	return {
@@ -282,6 +283,7 @@ def generic_russian_ditransitive_verb(index):
 		]
 	}
 
+
 def generic_russian_nominative_noun(index):
 	return {
 		"area": LEX,
@@ -295,6 +297,7 @@ def generic_russian_nominative_noun(index):
 		]
 	}
 
+
 def generic_russian_accusative_noun(index):
 	return {
 		"area": LEX,
@@ -307,6 +310,7 @@ def generic_russian_accusative_noun(index):
 		FiberRule(INHIBIT, LEX, ACC, 0)
 		]
 	}
+
 
 def generic_russian_dative_noun(index):
 	return {
@@ -344,8 +348,8 @@ ENGLISH_READOUT_RULES = {
 	ADJ: [LEX],
 	DET: [LEX],
 	ADVERB: [LEX],
+	RELPRONOUN: [LEX],
 	LEX: [],
-	#TODO: ADD FOR CLAUSE, RELPRONOUN
 }
 
 RUSSIAN_READOUT_RULES = {
@@ -691,7 +695,7 @@ class ReadoutMethod(Enum):
 
 # TODO: +3 LEX_K
 # HOW MANY PROJECT ROUNDS?
-def parse(sentence="run quickly", language="English", p=0.1, LEX_k=20,
+def parse(sentence="big dogs chase bad cats", language="English", p=0.1, LEX_k=20,
 	project_rounds=20, verbose=True, debug=False, readout_method=ReadoutMethod.FIBER_READOUT):
 
 	if language == "English":
