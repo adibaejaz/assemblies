@@ -19,7 +19,11 @@
     <select />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="948ba702-d6cd-4108-b325-16b7cf5a2ed3" name="Default Changelist" comment="" />
+    <list default="true" id="948ba702-d6cd-4108-b325-16b7cf5a2ed3" name="Default Changelist" comment="">
+      <change afterPath="$PROJECT_DIR$/tools.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/parser.py" beforeDir="false" afterPath="$PROJECT_DIR$/parser.py" afterDir="false" />
+    </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
     <option name="HIGHLIGHT_NON_ACTIVE_CHANGELIST" value="false" />
@@ -27,6 +31,12 @@
   </component>
   <component name="Git.Settings">
     <option name="RECENT_GIT_ROOT_PATH" value="$PROJECT_DIR$" />
+  </component>
+  <component name="JsFlowSettings">
+    <service-enabled>true</service-enabled>
+    <exe-path />
+    <other-services-enabled>true</other-services-enabled>
+    <auto-save>true</auto-save>
   </component>
   <component name="ProjectId" id="223UraE0qCRZN6JVMJHh8bb5N6w" />
   <component name="ProjectLevelVcsManager" settingsEditedManually="true" />
@@ -52,7 +62,10 @@
       <updated>1639065963489</updated>
       <workItem from="1639065969156" duration="2839000" />
       <workItem from="1639087456583" duration="4524000" />
-      <workItem from="1639590542643" duration="18473000" />
+      <workItem from="1639590542643" duration="20313000" />
+      <workItem from="1639870541782" duration="1818000" />
+      <workItem from="1639930588748" duration="228000" />
+      <workItem from="1639941879821" duration="690000" />
     </task>
     <servers />
   </component>
@@ -84,9 +97,9 @@
       <screen x="0" y="0" width="1440" height="900" />
     </state>
     <state x="229" y="89" key="SettingsEditor/0.0.1440.900@0.0.1440.900" timestamp="1639590500296" />
-    <state x="420" y="207" width="622" height="486" key="find.popup" timestamp="1639088707539">
+    <state x="420" y="207" width="704" height="518" key="find.popup" timestamp="1639870597272">
       <screen x="0" y="0" width="1440" height="900" />
     </state>
-    <state x="420" y="207" width="622" height="486" key="find.popup/0.0.1440.900@0.0.1440.900" timestamp="1639088707539" />
+    <state x="420" y="207" width="704" height="518" key="find.popup/0.0.1440.900@0.0.1440.900" timestamp="1639870597272" />
   </component>
 </project>

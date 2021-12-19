@@ -58,6 +58,9 @@ FiberRule = namedtuple('FiberRule', ['action', 'area1', 'area2', 'index'])
 FiringRule = namedtuple('FiringRule', ['action'])
 OtherRule = namedtuple('OtherRule', ['action'])
 
+
+# TODO : STORE SYNTACTIC TYPES
+
 def generic_noun(index):
 	return {
 		"index": index,
@@ -598,6 +601,16 @@ class EnglishParserBrain(ParserBrain):
 			if len((winners & nodet_assembly)) > threshold:
 				return "<null-det>"
 		# If nothing matched, at least we can see that in the parse output.
+		if not word and area_name == VERB:
+			winners = set(self.areas[area_name].winners)
+			area_k = self.areas[area_name].k
+			threshold = min_overlap * area_k
+			VERB_SIZE = 6
+			noverb_index = VERB_SIZE - 1
+			noverb_assembly_start = nodet_index * area_k
+			noverb_assembly = set(range(nodet_assembly_start, nodet_assembly_start + area_k))
+			if len((winners & noverb_assembly)) > threshold:
+				return "<null-det>"
 		return "<NON-WORD>"
 
 
@@ -707,7 +720,7 @@ class ReadoutMethod(Enum):
 
 
 
-def parse(sentence="dogs chase cats who run", language="English", p=0.1, LEX_k=23,
+def parse(sentence="dogs chase cats who saw mice who run", language="English", p=0.1, LEX_k=23,
 	project_rounds=20, verbose=True, debug=False, readout_method=ReadoutMethod.FIBER_READOUT):
 
 	if language == "English":
@@ -724,26 +737,35 @@ def parse(sentence="dogs chase cats who run", language="English", p=0.1, LEX_k=2
 		explicit_areas = RUSSIAN_EXPLICIT_AREAS
 		readout_rules = RUSSIAN_READOUT_RULES
 
-	dependencies = parseHelper(b, sentence, p, LEX_k, project_rounds, verbose, debug,
+	return parseHelper(b, sentence.split(" "), p, LEX_k, project_rounds, verbose, debug,
 		lexeme_dict, all_areas, explicit_areas, readout_method, readout_rules)
-
-
-	print("Got dependencies: ")
-	print(dependencies)
 
 
 def parseHelper(b, sentence, p, LEX_k, project_rounds, verbose, debug, 
 	lexeme_dict, all_areas, explicit_areas, readout_method, readout_rules):
 	debugger = ParserDebugger(b, all_areas, explicit_areas)
 
-	sentence = sentence.split(" ")
-
 	extreme_debug = False
 
+	dependencies = []
 
 	# MAIN LOOP STARTS
-	for word in sentence:
+	for i in range(len(sentence)):
+		word = sentence[i]
 		lexeme = lexeme_dict[word]
+
+		if word in ["who", "which", "that"] and i != 0:
+			print("SEEN RP")
+			rel_clause = " ".join(sentence[i:])
+			# clause_dependencies = parseHelper(b, rel_clause, p, LEX_k, project_rounds, verbose, debug,
+			# lexeme_dict, all_areas, explicit_areas, readout_method, readout_rules)
+			clause_dependencies = parse(sentence=rel_clause, language="English", p=0.1, LEX_k=23,
+			project_rounds=20, verbose=True, debug=False, readout_method=ReadoutMethod.FIBER_READOUT)
+			dependencies.extend(clause_dependencies)
+			break
+			# return dependencies
+
+
 		b.activateWord(LEX, word)
 		if verbose:
 			print("Activated word: " + word)
@@ -803,7 +825,7 @@ def parseHelper(b, sentence, p, LEX_k, project_rounds, verbose, debug,
 	for area in all_areas:
 		b.areas[area].unfix_assembly()
 
-	dependencies = []
+	# dependencies = []
 	def read_out(area, mapping):
 		to_areas = mapping[area]
 		b.project({}, {area: to_areas})
@@ -871,7 +893,10 @@ def parseHelper(b, sentence, p, LEX_k, project_rounds, verbose, debug,
 
 
 def main():
-    parse()
+	dependencies = parse()
+	print("Got dependencies: ")
+	print(dependencies)
+
 
 if __name__ == "__main__":
     main()
