@@ -184,6 +184,7 @@ class Brain:
 			if self.save_size:
 				self.areas[area].saved_w.append(self.areas[area].w)
 
+
 	def project_into(self, area, from_stimuli, from_areas, verbose=False):
 	# projecting everything in from stim_in[area] and area_in[area]
 	# calculate: inputs to self.connectomes[area] (previous winners)
@@ -356,6 +357,7 @@ class Brain:
 			if verbose:
 				print("Connectome of " + from_area + " to " + name + " is now:")
 				print(self.connectomes[from_area][name])
+
 			m += 1
 
 		# expand connectomes from other areas that did not fire into area
