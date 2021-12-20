@@ -720,7 +720,7 @@ class ReadoutMethod(Enum):
 
 
 
-def parse(sentence="dogs chase cats who saw mice who run", language="English", p=0.1, LEX_k=23,
+def parse(sentence="dogs chase cats who saw mice", language="English", p=0.1, LEX_k=23,
 	project_rounds=20, verbose=True, debug=False, readout_method=ReadoutMethod.FIBER_READOUT):
 
 	if language == "English":
@@ -827,6 +827,7 @@ def parseHelper(b, sentence, p, LEX_k, project_rounds, verbose, debug,
 
 	# dependencies = []
 	def read_out(area, mapping):
+		# print("MAPPING", mapping)
 		to_areas = mapping[area]
 		b.project({}, {area: to_areas})
 		this_word = b.getWord(LEX)
@@ -870,7 +871,6 @@ def parseHelper(b, sentence, p, LEX_k, project_rounds, verbose, debug,
 
 	if readout_method == ReadoutMethod.FIBER_READOUT:
 		activated_fibers = b.getActivatedFibers()
-		print("ACTIV FIBS", activated_fibers)
 
 
 		if verbose:

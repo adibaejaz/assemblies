@@ -357,6 +357,7 @@ class Brain:
 			if verbose:
 				print("Connectome of " + from_area + " to " + name + " is now:")
 				print(self.connectomes[from_area][name])
+
 			m += 1
 
 		# expand connectomes from other areas that did not fire into area
