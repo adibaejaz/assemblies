@@ -184,7 +184,6 @@ class Brain:
 			if self.save_size:
 				self.areas[area].saved_w.append(self.areas[area].w)
 
-
 	def project_into(self, area, from_stimuli, from_areas, verbose=False):
 	# projecting everything in from stim_in[area] and area_in[area]
 	# calculate: inputs to self.connectomes[area] (previous winners)
@@ -192,7 +191,8 @@ class Brain:
 	# k top of previous winners and potential new winners
 	# if new winners > 0, redo connectome and intra_connectomes 
 	# have to wait to replace new_winners
-		print("Projecting " + ",".join(from_stimuli) + " and " + ",".join(from_areas) + " into " + area.name)
+		if verbose:
+			print("Projecting " + ",".join(from_stimuli) + " and " + ",".join(from_areas) + " into " + area.name)
 
 		# If projecting from area with no assembly, complain.
 		for from_area in from_areas:
@@ -357,7 +357,6 @@ class Brain:
 			if verbose:
 				print("Connectome of " + from_area + " to " + name + " is now:")
 				print(self.connectomes[from_area][name])
-
 			m += 1
 
 		# expand connectomes from other areas that did not fire into area

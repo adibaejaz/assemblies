@@ -1,0 +1,536 @@
+{\rtf1\ansi\ansicpg1252\cocoartf1671\cocoasubrtf600
+{\fonttbl\f0\fnil\fcharset0 Monaco;}
+{\colortbl;\red255\green255\blue255;\red251\green2\blue7;\red102\green177\blue50;\red134\green205\blue77;
+\red252\green9\blue7;\red123\green221\blue55;\red252\green41\blue19;\red255\green255\blue11;}
+{\*\expandedcolortbl;;\cssrgb\c100000\c14913\c0;\cssrgb\c46532\c73327\c25364;\cssrgb\c58755\c82661\c37297;
+\cssrgb\c100000\c15764\c0;\cssrgb\c54133\c87606\c27652;\cssrgb\c100000\c25745\c7993;\cssrgb\c100000\c100000\c0;}
+\margl1440\margr1440\vieww28600\viewh17040\viewkind0
+\pard\tx720\tx1440\tx2160\tx2880\tx3600\tx4320\tx5040\tx5760\tx6480\tx7200\tx7920\tx8640\pardirnatural\partightenfactor0
+
+\f0\fs34 \cf0 RECURSIVE_TEST_SENTENCES = [\
+    # 1 embedding\
+    # (sentence, limits = \{depth: (start, end)\})\
+    ("dogs chase cats who run", \{0:(0,4), 1:(3,4)\}),\
+    ("dogs chase cats who love mice", \{0:(0,5), 1:(3,5)\}),\
+    ("dogs who run fly", \{0:(0,3), 1:(1,2)\}),\
+    ("dogs who run chase cats", \{0:(0,4), 1:(1,2)\}),\
+    ("dogs who love people chase cats", \{0:(0,4), 1:(1,3)\}),\
+    ("dogs chase cats who run quickly", \{0:(0,5), 1:(3,4)\}),\
+    ("dogs chase cats who love mice quickly", \{0:(0,6), 1:(3,5)\}),\
+    ("people said dogs fly", \{0:(0,3), 1:(2,3)\}),\
+    ("people said dogs chase cats", \{0:(0,4), 1:(2,4)\}),\
+    ("people said dogs fly quickly", \{0:(0,4), 1:(2,3)\}),\
+    ("people said dogs chase cats quickly", \{0:(0,5), 1:(2,4)\}),\
+    ("the people saw the mice who fly", \{0:(0,6), 1:(5,6)\}),\
+    ("the big cats who fly quickly chase bad dogs", \{0:(0,8), 1:(3,5)\}),\
+    ("big dogs who are bad saw a bad man", \{0:(0,8), 1:(2,4)\}),\
+    # >1 level of embedding\
+    ("people who said dogs fly are bad", \{0:(0,6), 1:(1,4), 2:(3,4)\})\
+]\
+\
+\
+\
+\
+\
+\
+\
+PARSING SENTENCE dogs chase cats who run\
+-------------------- DEPTH  0  -----------------------------------------------------\
+FOR LOOP:  0 :  dogs\
+FOR LOOP:  1 :  chase\
+FOR LOOP:  2 :  cats\
+FOR LOOP:  3 :  who\
+SIG TYPE:  OBJ\
+-------------------- DEPTH  1  -----------------------------------------------------\
+FOR LOOP:  3 :  who\
+FOR LOOP:  4 :  run\
+Got dependencies: \
+[\cf2 ['<NON-WORD>', 'cats', 'VERB', 'OBJ']\cf0 , \
+['<NON-WORD>', '<NON-WORD>', 'VERB', 'SUBJ'] \cf3 check that this is \'93who run\cf0 \'94]\
+SIGNATURE PROJ MAP\
+defaultdict(<class 'set'>, \{\})\
+--------------RETURNING TO DEPTH  0 ---------------------\
+TOUCHED ALL WORDS\
+PROJECTING CROSS SENTENCE\
+defaultdict(<class 'set'>, \{'OBJ': \{'DP', 'OBJ'\}, 'DP': \{'DP', 'OBJ'\}\})\
+FOR LOOP:  4 :  run\
+Got dependencies: \
+[['<NON-WORD>', 'cats', 'VERB', 'OBJ'], ['<NON-WORD>', '<NON-WORD>', 'VERB', 'SUBJ'], ['cats', '<NON-WORD>', 'OBJ', 'DP']]\
+\
+\
+\
+\
+\
+PARSING SENTENCE dogs chase cats who love mice\
+-------------------- DEPTH  0  -----------------------------------------------------\
+FOR LOOP:  0 :  dogs\
+FOR LOOP:  1 :  chase\
+FOR LOOP:  2 :  cats\
+FOR LOOP:  3 :  who\
+SIG TYPE:  OBJ\
+-------------------- DEPTH  1  -----------------------------------------------------\
+FOR LOOP:  3 :  who\
+FOR LOOP:  4 :  love\
+FOR LOOP:  5 :  mice\
+Got dependencies: \
+[['<NON-WORD>', '<NON-WORD>', 'VERB', 'OBJ'] \cf3 check that this is \'93love mice\'94\cf0 \
+, ['<NON-WORD>', '<NON-WORD>', 'VERB', 'SUBJ'] \cf3 check that this is \'93who love\'94\cf0  ]\
+SIGNATURE PROJ MAP\
+defaultdict(<class 'set'>, \{\})\
+--------------RETURNING TO DEPTH  0 ---------------------\
+TOUCHED ALL WORDS\
+PROJECTING CROSS SENTENCE\
+defaultdict(<class 'set'>, \{'OBJ': \{'DP', 'OBJ'\}, 'DP': \{'DP', 'OBJ'\}\})\
+FOR LOOP:  4 :  love\
+FOR LOOP:  5 :  mice\
+Got dependencies: \
+[['<NON-WORD>', '<NON-WORD>', 'VERB', 'OBJ'], \cf3 check that this is \'93chase cats\'94\cf0 \
+['<NON-WORD>', '<NON-WORD>', 'VERB', 'SUBJ'],  \cf3 check that this is \'93dogs chase\'94\cf0 \
+['<NON-WORD>', '<NON-WORD>', 'OBJ', 'DP']] \cf3 check that this is \'93cats X\'94\cf0 \
+\
+\
+\
+\
+\
+\
+PARSING SENTENCE dogs who run fly\
+-------------------- DEPTH  0  -----------------------------------------------------\
+FOR LOOP:  0 :  dogs\
+FOR LOOP:  1 :  who\
+SIG TYPE:  SUBJ\
+-------------------- DEPTH  1  -----------------------------------------------------\
+FOR LOOP:  1 :  who\
+FOR LOOP:  2 :  run\
+Got dependencies: \
+[\cf4 ['run', 'who', 'VERB', 'SUBJ']\cf0 ]\
+SIGNATURE PROJ MAP\
+defaultdict(<class 'set'>, \{\})\
+--------------RETURNING TO DEPTH  0 ---------------------\
+TOUCHED ALL WORDS\
+PROJECTING CROSS SENTENCE\
+defaultdict(<class 'set'>, \{'SUBJ': \{'DP', 'SUBJ'\}, 'DP': \{'DP', 'SUBJ'\}\})\
+FOR LOOP:  2 :  run\
+FOR LOOP:  3 :  fly\
+Got dependencies: \
+[['<NON-WORD>', '<NON-WORD>', 'VERB', 'SUBJ'], \cf3 check that this is \'93dogs fly\'94\cf0 \
+['<NON-WORD>', '<NON-WORD>', 'SUBJ', 'DP'] \cf3 check that this is \'93dogs X\'94\cf0 ]\
+\
+\
+\
+\
+\
+PARSING SENTENCE dogs who run chase cats\
+-------------------- DEPTH  0  -----------------------------------------------------\
+FOR LOOP:  0 :  dogs\
+FOR LOOP:  1 :  who\
+SIG TYPE:  SUBJ\
+-------------------- DEPTH  1  -----------------------------------------------------\
+FOR LOOP:  1 :  who\
+FOR LOOP:  2 :  run\
+Got dependencies: \
+[\cf4 ['run', 'who', 'VERB', 'SUBJ']\cf0 ]\
+SIGNATURE PROJ MAP\
+defaultdict(<class 'set'>, \{\})\
+--------------RETURNING TO DEPTH  0 ---------------------\
+TOUCHED ALL WORDS\
+PROJECTING CROSS SENTENCE\
+defaultdict(<class 'set'>, \{'SUBJ': \{'DP', 'SUBJ'\}, 'DP': \{'DP', 'SUBJ'\}\})\
+FOR LOOP:  2 :  run\
+FOR LOOP:  3 :  chase\
+FOR LOOP:  4 :  cats\
+Got dependencies: \
+[['<NON-WORD>', '<NON-WORD>', 'VERB', 'OBJ'], \cf3 check that this is \'93chase cats\'94\cf0 \
+['<NON-WORD>', '<NON-WORD>', 'VERB', 'SUBJ'], \cf3 check that this is \'93dogs chase\'94\cf0 \
+['<NON-WORD>', '<NON-WORD>', 'SUBJ', 'DP']] \cf3 check that this is \'93dogs X\'94\cf0 \
+\
+\
+\
+\
+PARSING SENTENCE dogs who love people chase cats\
+-------------------- DEPTH  0  -----------------------------------------------------\
+FOR LOOP:  0 :  dogs\
+FOR LOOP:  1 :  who\
+SIG TYPE:  SUBJ\
+-------------------- DEPTH  1  -----------------------------------------------------\
+FOR LOOP:  1 :  who\
+FOR LOOP:  2 :  love\
+FOR LOOP:  3 :  people\
+Got dependencies: \
+[\cf3 ['love', 'people', 'VERB', 'OBJ'], ['love', 'who', 'VERB', 'SUBJ']\cf0 ]\
+SIGNATURE PROJ MAP\
+defaultdict(<class 'set'>, \{\})\
+--------------RETURNING TO DEPTH  0 ---------------------\
+TOUCHED ALL WORDS\
+PROJECTING CROSS SENTENCE\
+defaultdict(<class 'set'>, \{'SUBJ': \{'DP', 'SUBJ'\}, 'DP': \{'DP', 'SUBJ'\}\})\
+FOR LOOP:  2 :  love\
+FOR LOOP:  3 :  people\
+FOR LOOP:  4 :  chase\
+Got dependencies: \
+[['<NON-WORD>', '<NON-WORD>', 'VERB', 'OBJ'], \cf3 check that this is \'93chase cats\'94\cf0 \
+['<NON-WORD>', '<NON-WORD>', 'VERB', 'SUBJ'], \cf3 check that this is \'93dogs chase\'94\cf0 \
+['<NON-WORD>', '<NON-WORD>', 'SUBJ', 'DP']] \cf3 check that this is \'93dogs X\'94\cf0 \
+\
+\
+\
+\
+\
+PARSING SENTENCE dogs chase cats who run quickly\
+-------------------- DEPTH  0  -----------------------------------------------------\
+FOR LOOP:  0 :  dogs\
+FOR LOOP:  1 :  chase\
+FOR LOOP:  2 :  cats\
+FOR LOOP:  3 :  who\
+SIG TYPE:  OBJ\
+-------------------- DEPTH  1  -----------------------------------------------------\
+FOR LOOP:  3 :  who\
+FOR LOOP:  4 :  run\
+Got dependencies: \
+[\cf2 ['<NON-WORD>', 'cats', 'VERB', 'OBJ']\cf0 , \
+['<NON-WORD>', '<NON-WORD>', 'VERB', 'SUBJ'] \cf3 check that this is \'93who run\'94\cf0 ]\
+SIGNATURE PROJ MAP\
+defaultdict(<class 'set'>, \{\})\
+--------------RETURNING TO DEPTH  0 ---------------------\
+TOUCHED ALL WORDS\
+PROJECTING CROSS SENTENCE\
+defaultdict(<class 'set'>, \{'OBJ': \{'DP', 'OBJ'\}, 'DP': \{'DP', 'OBJ'\}\})\
+FOR LOOP:  4 :  run\
+FOR LOOP:  5 :  quickly\
+Got dependencies: \
+[['<NON-WORD>', 'cats', 'VERB', 'OBJ'],  \cf3 check that this is \'93chase cats\'94\cf0 \
+['<NON-WORD>', '<NON-WORD>', 'VERB', 'SUBJ'], \cf3 check that this is \'93dogs chase\'94\cf0 \
+['<NON-WORD>', '<NON-WORD>', 'VERB', 'ADVERB'], \cf3 check that this is \'93chase quickly\'94\cf0 \
+['cats', '<NON-WORD>', 'OBJ', 'DP'] \cf3 check that this is \'93cats X\'94\cf0 ]\
+\
+\
+\
+\
+\
+PARSING SENTENCE dogs chase cats who love mice quickly\
+-------------------- DEPTH  0  -----------------------------------------------------\
+FOR LOOP:  0 :  dogs\
+FOR LOOP:  1 :  chase\
+FOR LOOP:  2 :  cats\
+FOR LOOP:  3 :  who\
+SIG TYPE:  OBJ\
+-------------------- DEPTH  1  -----------------------------------------------------\
+FOR LOOP:  3 :  who\
+FOR LOOP:  4 :  love\
+FOR LOOP:  5 :  mice\
+Got dependencies: \
+[['<NON-WORD>', '<NON-WORD>', 'VERB', 'OBJ'],  \cf3 check that this is \'93love mice\'94\cf0 \
+['<NON-WORD>', '<NON-WORD>', 'VERB', 'SUBJ'] \cf3 check that this is \'93who love\'94\cf0 ] \
+SIGNATURE PROJ MAP\
+defaultdict(<class 'set'>, \{\})\
+--------------RETURNING TO DEPTH  0 ---------------------\
+TOUCHED ALL WORDS\
+PROJECTING CROSS SENTENCE\
+defaultdict(<class 'set'>, \{'OBJ': \{'DP', 'OBJ'\}, 'DP': \{'DP', 'OBJ'\}\})\
+FOR LOOP:  4 :  love\
+FOR LOOP:  5 :  mice\
+FOR LOOP:  6 :  quickly\
+Got dependencies: \
+[['<NON-WORD>', '<NON-WORD>', 'VERB', 'OBJ'], \cf3 check that this is \'93chase cats\'94\cf0 \
+['<NON-WORD>', '<NON-WORD>', 'VERB', 'SUBJ'], \cf3 check that this is \'93dogs chase\'94\cf0 \
+['<NON-WORD>', '<NON-WORD>', 'VERB', 'ADVERB'], \cf3 check that this is \'93chase quickly\'94\cf0 \
+['<NON-WORD>', '<NON-WORD>', 'OBJ', 'DP'] \cf3 check that this is \'93cats X\'94\cf0 ]\
+\
+\
+PARSING SENTENCE people said dogs fly\
+-------------------- DEPTH  0  -----------------------------------------------------\
+FOR LOOP:  0 :  people\
+FOR LOOP:  1 :  said\
+FOR LOOP:  2 :  dogs\
+SIG TYPE:  VERB\
+-------------------- DEPTH  1  -----------------------------------------------------\
+FOR LOOP:  2 :  dogs\
+FOR LOOP:  3 :  fly\
+Got dependencies: \
+[['<NON-WORD>', '<NON-WORD>', 'VERB', 'SUBJ']] \cf3 check that this is \'93dogs fly\'94\cf0 \
+SIGNATURE PROJ MAP\
+defaultdict(<class 'set'>, \{\})\
+--------------RETURNING TO DEPTH  0 ---------------------\
+TOUCHED ALL WORDS\
+PROJECTING CROSS SENTENCE\
+defaultdict(<class 'set'>, \{'VERB': \{'DP', 'VERB'\}, 'DP': \{'DP', 'VERB'\}\})\
+FOR LOOP:  3 :  fly\
+Got dependencies: \
+[['<NON-WORD>', '<NON-WORD>', 'VERB', 'SUBJ'] \cf3 check that this is \'93people said\'94\cf0 ]\
+\pard\tx720\tx1440\tx2160\tx2880\tx3600\tx4320\tx5040\tx5760\tx6480\tx7200\tx7920\tx8640\pardirnatural\partightenfactor0
+\cf2 missing ['<NON-WORD>', '<NON-WORD>', 'VERB', \'91DP\'92] for \'93said X\'94\
+\
+\
+\pard\tx720\tx1440\tx2160\tx2880\tx3600\tx4320\tx5040\tx5760\tx6480\tx7200\tx7920\tx8640\pardirnatural\partightenfactor0
+\cf0 PARSING SENTENCE people said dogs chase cats\
+-------------------- DEPTH  0  -----------------------------------------------------\
+FOR LOOP:  0 :  people\
+FOR LOOP:  1 :  said\
+FOR LOOP:  2 :  dogs\
+SIG TYPE:  VERB\
+-------------------- DEPTH  1  -----------------------------------------------------\
+FOR LOOP:  2 :  dogs\
+FOR LOOP:  3 :  chase\
+FOR LOOP:  4 :  cats\
+Got dependencies: \
+[['<NON-WORD>', 'cats', 'VERB', 'OBJ'], \cf3 check that this is \'93chase cats\'94\cf0 \
+ ['<NON-WORD>', '<NON-WORD>', 'VERB', 'SUBJ'] \cf3 check that this is \'93dogs chase\'94\cf0 ] \
+SIGNATURE PROJ MAP\
+defaultdict(<class 'set'>, \{\})\
+--------------RETURNING TO DEPTH  0 ---------------------\
+TOUCHED ALL WORDS\
+PROJECTING CROSS SENTENCE\
+defaultdict(<class 'set'>, \{'VERB': \{'DP', 'VERB'\}, 'DP': \{'DP', 'VERB'\}\})\
+\pard\tx720\tx1440\tx2160\tx2880\tx3600\tx4320\tx5040\tx5760\tx6480\tx7200\tx7920\tx8640\pardirnatural\partightenfactor0
+\cf2 FOR LOOP:  3 :  chase\
+FOR LOOP:  4 :  cats\
+Got dependencies: \
+[['<NON-WORD>', 'cats', 'VERB', 'OBJ'] !\cf0 , \
+\cf2 \'93said\'94 of depth 0 does not have object of depth 0, connects to object of depth 1 because VERB-OBJ disinhibited during VERB-DP projection\cf0 \
+['<NON-WORD>', '<NON-WORD>', 'VERB', 'SUBJ'] \cf3 check that this is \'93people said\'94\cf0 ]\
+\cf2 missing ['<NON-WORD>', '<NON-WORD>', 'VERB', \'91DP\'92] for \'93said X\'94\
+\pard\tx720\tx1440\tx2160\tx2880\tx3600\tx4320\tx5040\tx5760\tx6480\tx7200\tx7920\tx8640\pardirnatural\partightenfactor0
+\cf0 \
+\
+\
+\
+\
+PARSING SENTENCE people said dogs fly quickly\
+-------------------- DEPTH  0  -----------------------------------------------------\
+FOR LOOP:  0 :  people\
+FOR LOOP:  1 :  said\
+FOR LOOP:  2 :  dogs\
+SIG TYPE:  VERB\
+-------------------- DEPTH  1  -----------------------------------------------------\
+FOR LOOP:  2 :  dogs\
+FOR LOOP:  3 :  fly\
+Got dependencies: \
+[['<NON-WORD>', '<NON-WORD>', 'VERB', 'SUBJ'] \cf3 check that this is \'93dogs fly\'94\cf0 ]\
+SIGNATURE PROJ MAP\
+defaultdict(<class 'set'>, \{\})\
+--------------RETURNING TO DEPTH  0 ---------------------\
+TOUCHED ALL WORDS\
+PROJECTING CROSS SENTENCE\
+defaultdict(<class 'set'>, \{'VERB': \{'DP', 'VERB'\}, 'DP': \{'DP', 'VERB'\}\})\
+FOR LOOP:  3 :  fly\
+FOR LOOP:  4 :  quickly\
+Got dependencies: \
+[['<NON-WORD>', '<NON-WORD>', 'VERB', 'SUBJ'], \cf3 check that this is \'93people said\'94\cf0 \
+ ['<NON-WORD>', '<NON-WORD>', 'VERB', 'ADVERB'] \cf3 check that this is \'93said quickly\'94\cf0 ]\
+\pard\tx720\tx1440\tx2160\tx2880\tx3600\tx4320\tx5040\tx5760\tx6480\tx7200\tx7920\tx8640\pardirnatural\partightenfactor0
+\cf2 missing ['<NON-WORD>', '<NON-WORD>', 'VERB', \'91DP\'92] for \'93said X\'94\
+\pard\tx720\tx1440\tx2160\tx2880\tx3600\tx4320\tx5040\tx5760\tx6480\tx7200\tx7920\tx8640\pardirnatural\partightenfactor0
+\cf0 \
+\
+\
+\
+\
+PARSING SENTENCE people said dogs chase cats quickly\
+-------------------- DEPTH  0  -----------------------------------------------------\
+FOR LOOP:  0 :  people\
+FOR LOOP:  1 :  said\
+FOR LOOP:  2 :  dogs\
+SIG TYPE:  VERB\
+-------------------- DEPTH  1  -----------------------------------------------------\
+FOR LOOP:  2 :  dogs\
+FOR LOOP:  3 :  chase\
+FOR LOOP:  4 :  cats\
+Got dependencies: \
+[['<NON-WORD>', 'cats', 'VERB', 'OBJ'], \cf3 check that this is \'93chase cats\'94\cf0 \
+ ['<NON-WORD>', '<NON-WORD>', 'VERB', 'SUBJ'] \cf3 check that this is \'93dogs chase\'94\cf0 ]\
+SIGNATURE PROJ MAP\
+defaultdict(<class 'set'>, \{\})\
+--------------RETURNING TO DEPTH  0 ---------------------\
+TOUCHED ALL WORDS\
+PROJECTING CROSS SENTENCE\
+defaultdict(<class 'set'>, \{'VERB': \{'DP', 'VERB'\}, 'DP': \{'DP', 'VERB'\}\})\
+FOR LOOP:  3 :  chase\
+FOR LOOP:  4 :  cats\
+FOR LOOP:  5 :  quickly\
+Got dependencies: \
+[\cf2 ['<NON-WORD>', 'cats', 'VERB', 'OBJ'] ! \
+\'93said\'94 of depth 0 does not have object of depth 0, connects to object of depth 1 because VERB-OBJ disinhibited during VERB-DP projection\cf0 \
+['<NON-WORD>', '<NON-WORD>', 'VERB', 'SUBJ'], \cf3 check that this is \'93people said\'94\cf0 \
+['<NON-WORD>', '<NON-WORD>', 'VERB', 'ADVERB'] \cf3 check that this is \'93said quickly\'94\cf0 ]\
+\pard\tx720\tx1440\tx2160\tx2880\tx3600\tx4320\tx5040\tx5760\tx6480\tx7200\tx7920\tx8640\pardirnatural\partightenfactor0
+\cf2 missing ['<NON-WORD>', '<NON-WORD>', 'VERB', \'91DP\'92] for \'93said X\'94\
+\pard\tx720\tx1440\tx2160\tx2880\tx3600\tx4320\tx5040\tx5760\tx6480\tx7200\tx7920\tx8640\pardirnatural\partightenfactor0
+\cf0 \
+\
+\
+PARSING SENTENCE the people saw the mice who fly\
+-------------------- DEPTH  0  -----------------------------------------------------\
+FOR LOOP:  0 :  the\
+FOR LOOP:  1 :  people\
+FOR LOOP:  2 :  saw\
+FOR LOOP:  3 :  the\
+FOR LOOP:  4 :  mice\
+FOR LOOP:  5 :  who\
+SIG TYPE:  OBJ\
+-------------------- DEPTH  1  -----------------------------------------------------\
+FOR LOOP:  5 :  who\
+FOR LOOP:  6 :  fly\
+Got dependencies: \
+\pard\tx720\tx1440\tx2160\tx2880\tx3600\tx4320\tx5040\tx5760\tx6480\tx7200\tx7920\tx8640\pardirnatural\partightenfactor0
+\cf5 [['<NON-WORD>', 'mice', 'VERB', 'OBJ'], <\'97- same \
+\pard\tx720\tx1440\tx2160\tx2880\tx3600\tx4320\tx5040\tx5760\tx6480\tx7200\tx7920\tx8640\pardirnatural\partightenfactor0
+\cf0 ['<NON-WORD>', '<NON-WORD>', 'VERB', 'SUBJ'], \cf6 \'93who fly\'94\cf0 \
+\pard\tx720\tx1440\tx2160\tx2880\tx3600\tx4320\tx5040\tx5760\tx6480\tx7200\tx7920\tx8640\pardirnatural\partightenfactor0
+\cf7 ['mice', 'the', 'OBJ', 'DET'], <\'97- same bc who is a noun\
+\pard\tx720\tx1440\tx2160\tx2880\tx3600\tx4320\tx5040\tx5760\tx6480\tx7200\tx7920\tx8640\pardirnatural\partightenfactor0
+\cf5 ['<NON-WORD>', '<NON-WORD>', 'SUBJ', 'DET']] <\'97- ^\
+\pard\tx720\tx1440\tx2160\tx2880\tx3600\tx4320\tx5040\tx5760\tx6480\tx7200\tx7920\tx8640\pardirnatural\partightenfactor0
+\cf0 SIGNATURE PROJ MAP\
+defaultdict(<class 'set'>, \{\})\
+--------------RETURNING TO DEPTH  0 ---------------------\
+TOUCHED ALL WORDS\
+PROJECTING CROSS SENTENCE\
+defaultdict(<class 'set'>, \{'OBJ': \{'DP', 'OBJ'\}, 'DP': \{'DP', 'OBJ'\}\})\
+FOR LOOP:  6 :  fly\
+Got dependencies: \
+[['<NON-WORD>', 'mice', 'VERB', 'OBJ'], \cf6 \'93saw mice\'94\cf0 \
+['<NON-WORD>', '<NON-WORD>', 'VERB', 'SUBJ'], \cf6 \'93people saw\'94\cf0 \
+['mice', '<NON-WORD>', 'OBJ', 'DP'], \cf8 :)\cf0 \
+['mice', 'the', 'OBJ', 'DET'], \cf8 :)\cf0 \
+['<NON-WORD>', '<NON-WORD>', 'SUBJ', 'DET']] \cf6 \'93the people\'94\cf0 \
+\
+\
+\
+\
+\
+\
+\
+PARSING SENTENCE the big cats who fly quickly chase bad dogs\
+-------------------- DEPTH  0  -----------------------------------------------------\
+FOR LOOP:  0 :  the\
+FOR LOOP:  1 :  big\
+FOR LOOP:  2 :  cats\
+FOR LOOP:  3 :  who\
+SIG TYPE:  SUBJ\
+-------------------- DEPTH  1  -----------------------------------------------------\
+FOR LOOP:  3 :  who\
+FOR LOOP:  4 :  fly\
+FOR LOOP:  5 :  quickly\
+Got dependencies: \
+[['fly', 'who', 'VERB', 'SUBJ'], \cf8 :)\cf0 \
+['fly', 'quickly', 'VERB', 'ADVERB'], \cf8 :)\cf0 \
+\pard\tx720\tx1440\tx2160\tx2880\tx3600\tx4320\tx5040\tx5760\tx6480\tx7200\tx7920\tx8640\pardirnatural\partightenfactor0
+\cf5 ['who', '<NON-WORD>', 'SUBJ', 'ADJ'], <\'97- existing assemblies in ADJ and DET\
+['who', '<NON-WORD>', 'SUBJ', 'DET']]\cf0 \
+SIGNATURE PROJ MAP\
+defaultdict(<class 'set'>, \{\})\
+--------------RETURNING TO DEPTH  0 ---------------------\
+TOUCHED ALL WORDS\
+PROJECTING CROSS SENTENCE\
+defaultdict(<class 'set'>, \{'SUBJ': \{'DP', 'SUBJ'\}, 'DP': \{'DP', 'SUBJ'\}\})\
+FOR LOOP:  4 :  fly\
+FOR LOOP:  5 :  quickly\
+FOR LOOP:  6 :  chase\
+FOR LOOP:  7 :  bad\
+FOR LOOP:  8 :  dogs\
+Got dependencies: \
+[['<NON-WORD>', '<NON-WORD>', 'VERB', 'OBJ'], \cf6 \'93chase dogs\'94\cf0 \
+['<NON-WORD>', '<NON-WORD>', 'VERB', 'SUBJ'], \cf6 \'93cats chase\'94\cf0 \
+\cf5 ['<NON-WORD>', '<NON-WORD>', 'VERB', 'ADVERB'],\cf0  \cf5 <\'97- same problem\cf0 \
+['<NON-WORD>', '<NON-WORD>', 'OBJ', 'ADJ'], \cf6 \'93bad dogs\'94\cf0 \
+['<NON-WORD>', '<NON-WORD>', 'SUBJ', 'DP'], \cf6 \'93cats X\'94\cf0 \
+['<NON-WORD>', '<NON-WORD>', 'SUBJ', 'DET'], \cf6 \'93the cats\'94\cf0 \
+['<NON-WORD>', '<NON-WORD>', 'SUBJ', 'ADJ']] \cf6 \'93big cats\'94\cf0 \
+\
+\
+\
+\
+\
+\
+\
+PARSING SENTENCE big dogs who are bad saw a bad man\
+-------------------- DEPTH  0  -----------------------------------------------------\
+FOR LOOP:  0 :  big\
+FOR LOOP:  1 :  dogs\
+FOR LOOP:  2 :  who\
+SIG TYPE:  SUBJ\
+-------------------- DEPTH  1  -----------------------------------------------------\
+FOR LOOP:  2 :  who\
+FOR LOOP:  3 :  are\
+FOR LOOP:  4 :  bad\
+Got dependencies: \
+[['are', 'bad', 'VERB', 'ADJ'], \cf8 :)\cf0 \
+['are', 'who', 'VERB', 'SUBJ'], \cf8 :)\cf0 \
+['who', '<NON-WORD>', 'SUBJ', 'ADJ']]\cf8  :)\cf0 \
+SIGNATURE PROJ MAP\
+defaultdict(<class 'set'>, \{\})\
+--------------RETURNING TO DEPTH  0 ---------------------\
+TOUCHED ALL WORDS\
+PROJECTING CROSS SENTENCE\
+defaultdict(<class 'set'>, \{'SUBJ': \{'DP', 'SUBJ'\}, 'DP': \{'DP', 'SUBJ'\}\})\
+FOR LOOP:  3 :  are\
+FOR LOOP:  4 :  bad\
+FOR LOOP:  5 :  saw\
+FOR LOOP:  6 :  a\
+FOR LOOP:  7 :  bad\
+FOR LOOP:  8 :  man\
+Got dependencies: \
+[['<NON-WORD>', '<NON-WORD>', 'VERB', 'OBJ'], \cf6 \'93saw man\'94\cf0 \
+['<NON-WORD>', '<NON-WORD>', 'VERB', 'SUBJ'], \cf6 \'93dogs saw\'94\cf0 \
+['<NON-WORD>', '<NON-WORD>', 'VERB', 'ADJ'], \cf6 \'93are bad\'94 (copular)\cf0 \
+['<NON-WORD>', '<NON-WORD>', 'OBJ', 'ADJ'], \cf6 \'93bad man\'94\cf0 \
+['<NON-WORD>', '<NON-WORD>', 'OBJ', 'DET'], \cf6 \'93a man\'94\cf0 \
+['<NON-WORD>', '<NON-WORD>', 'SUBJ', 'DP'], \cf6 \'93dogs X\'94\cf0 \
+['<NON-WORD>', '<NON-WORD>', 'SUBJ', 'ADJ']] \cf6 \'93big dogs\'94\cf0 \
+\
+\
+\
+\
+\
+\
+\
+\
+\
+PARSING SENTENCE people who said dogs fly are bad\
+-------------------- DEPTH  0  -----------------------------------------------------\
+FOR LOOP:  0 :  people\
+FOR LOOP:  1 :  who\
+SIG TYPE:  SUBJ\
+-------------------- DEPTH  1  -----------------------------------------------------\
+FOR LOOP:  1 :  who\
+FOR LOOP:  2 :  said\
+FOR LOOP:  3 :  dogs\
+SIG TYPE:  VERB\
+-------------------- DEPTH  2  -----------------------------------------------------\
+FOR LOOP:  3 :  dogs\
+FOR LOOP:  4 :  fly\
+Got dependencies: \
+[['<NON-WORD>', '<NON-WORD>', 'VERB', 'SUBJ']] \cf6 \'93dogs fly\'94\cf0 \
+SIGNATURE PROJ MAP\
+defaultdict(<class 'set'>, \{\})\
+--------------RETURNING TO DEPTH  1 ---------------------\
+TOUCHED ALL WORDS\
+PROJECTING CROSS SENTENCE\
+defaultdict(<class 'set'>, \{'VERB': \{'DP', 'VERB'\}, 'DP': \{'DP', 'VERB'\}\})\
+FOR LOOP:  4 :  fly\
+Got dependencies: \
+[['<NON-WORD>', '<NON-WORD>', 'VERB', 'SUBJ']] \cf6 \'93who said\'94 \
+\pard\tx720\tx1440\tx2160\tx2880\tx3600\tx4320\tx5040\tx5760\tx6480\tx7200\tx7920\tx8640\pardirnatural\partightenfactor0
+\cf7 should have [\'91said\'92, \'91<NON-WORD>\'92, \'91VERB\'92, \'91DP\'92] \
+!!!! PRINT OUT VERB-DP DEPENDENCES IN READOUT !!!!\cf0 \
+SIGNATURE PROJ MAP\
+defaultdict(<class 'set'>, \{\})\
+--------------RETURNING TO DEPTH  0 ---------------------\
+TOUCHED ALL WORDS\
+PROJECTING CROSS SENTENCE\
+defaultdict(<class 'set'>, \{'SUBJ': \{'DP', 'SUBJ'\}, 'DP': \{'DP', 'SUBJ'\}\})\
+FOR LOOP:  2 :  said\
+FOR LOOP:  3 :  dogs\
+FOR LOOP:  4 :  fly\
+FOR LOOP:  5 :  are\
+FOR LOOP:  6 :  bad\
+Got dependencies: \
+[['<NON-WORD>', '<NON-WORD>', 'VERB', 'ADJ'], \cf6 \'93are bad\'94\cf0 \
+['<NON-WORD>', '<NON-WORD>', 'VERB', 'SUBJ'], \cf6 \'93people are\'94\cf0 \
+['<NON-WORD>', '<NON-WORD>', 'SUBJ', 'DP']] \cf6 \'93people X\'94\
+\
+\
+--- 161.58558416366577 seconds --- 77 words\
+\pard\tx720\tx1440\tx2160\tx2880\tx3600\tx4320\tx5040\tx5760\tx6480\tx7200\tx7920\tx8640\pardirnatural\partightenfactor0
+\cf0 \
+\
+}

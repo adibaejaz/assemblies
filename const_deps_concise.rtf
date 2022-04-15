@@ -1,0 +1,236 @@
+{\rtf1\ansi\ansicpg1252\cocoartf1671\cocoasubrtf600
+{\fonttbl\f0\fnil\fcharset0 Monaco;}
+{\colortbl;\red255\green255\blue255;\red0\green0\blue0;\red0\green0\blue0;\red251\green2\blue7;
+}
+{\*\expandedcolortbl;;\cssrgb\c0\c0\c0;\csgray\c0\c0;\cssrgb\c100000\c14913\c0;
+}
+\margl1440\margr1440\vieww28600\viewh16580\viewkind0
+\pard\tx560\tx1120\tx1680\tx2240\tx2800\tx3360\tx3920\tx4480\tx5040\tx5600\tx6160\tx6720\pardirnatural\partightenfactor0
+
+\f0\fs38 \cf2 \cb3 \CocoaLigature0 \
+\
+TEST_SENTENCES = [\
+    "dogs run",\
+    "dogs chase cats",\
+    "the dogs run",\
+    "the dogs chase cats",\
+    "dogs chase the cats",\
+    "the man saw the woman",\
+    "the man saw a woman",\
+    "the man saw a man",\
+    "big cats are people",\
+    "people are big cats",\
+    "the big dogs chase bad people",\
+    "i love you",\
+    "dogs run quickly",\
+    "the dogs run quickly",\
+    "the dogs quickly run",\
+    "dogs quickly run",\
+    "bad people run quickly",\
+    "the bad people run quickly",\
+    "the cats quickly chase a woman",\
+    "the cats quickly chase mice",\
+    "dogs run from cats",\
+    "the dogs run from cats", \
+    "the cats run to mice from dogs",\
+    "cats love the mice in people",\
+    "the man of the people saw the mice",\
+    "cats are people",\
+    "people are bad",  # ~Hobbes\
+    "big dogs are bad",\
+    "big bad dogs run",\
+    "people are big bad cats",\
+    "big bad cats are people", \
+]\
+\
+\
+PARSING SENTENCE dogs run\
+Got dependencies: \
+[['<NON-WORD>', '<NON-WORD>', 'SENTENCE', 'VP'], ['<NON-WORD>', 'dogs', 'SENTENCE', 'SUBJ'], ['<NON-WORD>', 'run', 'VP', 'VERB']]\
+>> CORRECT\
+\
+\
+PARSING SENTENCE dogs chase cats\
+Got dependencies: \
+[['<NON-WORD>', '<NON-WORD>', 'SENTENCE', 'VP'], ['<NON-WORD>', 'dogs', 'SENTENCE', 'SUBJ'], ['<NON-WORD>', 'chase', 'VP', \
+'VERB'], ['<NON-WORD>', 'cats', 'VP', 'OBJ']]\
+>> CORRECT\
+\
+\
+PARSING SENTENCE the dogs run\
+Got dependencies: \
+[['<NON-WORD>', '<NON-WORD>', 'SENTENCE', 'VP'], ['<NON-WORD>', 'dogs', 'SENTENCE', 'SUBJ'], ['<NON-WORD>', 'run', 'VP', 'VERB'], ['dogs', 'the', 'SUBJ', 'DET']]\
+>> CORRECT\
+\
+\
+PARSING SENTENCE the dogs chase cats\
+Got dependencies: \
+[['<NON-WORD>', '<NON-WORD>', 'SENTENCE', 'VP'], ['<NON-WORD>', 'dogs', 'SENTENCE', 'SUBJ'], ['<NON-WORD>', 'chase', 'VP', 'VERB'], ['<NON-WORD>', 'cats', 'VP', 'OBJ'], ['dogs', 'the', 'SUBJ', 'DET']]\
+>> CORRECT\
+\
+\
+PARSING SENTENCE dogs chase the cats\
+Got dependencies: \
+[['<NON-WORD>', '<NON-WORD>', 'SENTENCE', 'VP'], ['<NON-WORD>', 'dogs', 'SENTENCE', 'SUBJ'], ['<NON-WORD>', 'chase', 'VP', 'VERB'], ['<NON-WORD>', 'cats', 'VP', 'OBJ'], ['cats', 'the', 'OBJ', 'DET']]\
+>> CORRECT\
+\
+\
+PARSING SENTENCE the man saw the woman\
+Got dependencies: \
+[['<NON-WORD>', '<NON-WORD>', 'SENTENCE', 'VP'], ['<NON-WORD>', 'man', 'SENTENCE', 'SUBJ'], ['<NON-WORD>', 'saw', 'VP', 'VERB'], ['<NON-WORD>', 'woman', 'VP', 'OBJ'], ['woman', 'the', 'OBJ', 'DET'], ['man', 'the', 'SUBJ', 'DET']]\
+>> CORRECT\
+\
+\
+PARSING SENTENCE the man saw a woman\
+Got dependencies: \
+[['<NON-WORD>', '<NON-WORD>', 'SENTENCE', 'VP'], ['<NON-WORD>', 'man', 'SENTENCE', 'SUBJ'], ['<NON-WORD>', 'saw', 'VP', 'VERB'], ['<NON-WORD>\'92, 'woman', 'VP', 'OBJ'], ['woman', 'a', 'OBJ', 'DET'], ['man', 'the', 'SUBJ', 'DET']]\
+>> CORRECT\
+\
+\
+PARSING SENTENCE the man saw a man\
+Got dependencies: \
+[['<NON-WORD>', '<NON-WORD>', 'SENTENCE', 'VP'], ['<NON-WORD>', 'man', 'SENTENCE', 'SUBJ'], ['<NON-WORD>', 'saw', 'VP', 'VERB'], ['<NON-WORD>', 'man', 'VP', 'OBJ'], ['man', 'a', 'OBJ', 'DET'], ['man', 'the', 'SUBJ', 'DET']]\
+>> CORRECT\
+\
+\
+PARSING SENTENCE big cats are people\
+Got dependencies: \
+[['<NON-WORD>', '<NON-WORD>', 'SENTENCE', 'VP'], ['<NON-WORD>', 'cats', 'SENTENCE', 'SUBJ'], ['<NON-WORD>', 'are', 'VP', 'VERB'], ['<NON-WORD>', 'people', 'VP', 'OBJ'], ['cats', 'big', 'SUBJ', 'ADJ']]\
+>> CORRECT\
+\
+\
+PARSING SENTENCE people are big cats\
+Got dependencies: \
+[['<NON-WORD>', '<NON-WORD>', 'SENTENCE', 'VP'], ['<NON-WORD>', 'people', 'SENTENCE', 'SUBJ'], ['<NON-WORD>', 'are', 'VP', 'VERB'], ['<NON-WORD>', 'cats', 'VP', 'OBJ'], ['cats', 'big', 'OBJ', 'ADJ']]\
+>> CORRECT\
+\
+\
+\
+PARSING SENTENCE the big dogs chase bad people\
+Got dependencies: \
+[['<NON-WORD>', '<NON-WORD>', 'SENTENCE', 'VP'], ['<NON-WORD>', 'dogs', 'SENTENCE', 'SUBJ'], ['<NON-WORD>', 'chase', 'VP', 'VERB'], ['<NON-WORD>', 'people', 'VP', 'OBJ'], ['people', 'bad', 'OBJ', 'ADJ'], ['dogs', 'big', 'SUBJ', 'ADJ'], ['dogs', 'the', 'SUBJ', 'DET']]\
+>> CORRECT\
+\
+\
+PARSING SENTENCE i love you\
+Got dependencies: \
+[['<NON-WORD>', '<NON-WORD>', 'SENTENCE', 'VP'], ['<NON-WORD>', 'i', 'SENTENCE', 'SUBJ'], ['<NON-WORD>', 'love', 'VP', 'VERB'], ['<NON-WORD>', 'you', 'VP', 'OBJ']]\
+>> CORRECT\
+\
+\
+PARSING SENTENCE dogs run quickly\
+Got dependencies: \
+[['<NON-WORD>', '<NON-WORD>', 'SENTENCE', 'VP'], ['<NON-WORD>', 'dogs', 'SENTENCE', 'SUBJ'], ['<NON-WORD>', 'run', 'VP', 'VERB'], ['run', 'quickly', 'VERB', 'ADVERB']]\
+>> CORRECT\
+\
+\
+PARSING SENTENCE the dogs run quickly\
+Got dependencies: \
+[['<NON-WORD>', '<NON-WORD>', 'SENTENCE', 'VP'], ['<NON-WORD>', 'dogs', 'SENTENCE', 'SUBJ'], ['<NON-WORD>', 'run', 'VP', 'VERB'], ['run', 'quickly', 'VERB', 'ADVERB'], ['dogs', 'the', 'SUBJ', 'DET']]\
+>> CORRECT\
+\
+\
+PARSING SENTENCE the dogs quickly run\
+Got dependencies: \
+[['<NON-WORD>', '<NON-WORD>', 'SENTENCE', 'VP'], ['<NON-WORD>', 'dogs', 'SENTENCE', 'SUBJ'], ['<NON-WORD>', 'run', 'VP', 'VERB'], ['run', 'quickly', 'VERB', 'ADVERB'], ['dogs', 'the', 'SUBJ', 'DET']]\
+>> CORRECT\
+\
+\
+PARSING SENTENCE dogs quickly run\
+Got dependencies: \
+[['<NON-WORD>', '<NON-WORD>', 'SENTENCE', 'VP'], ['<NON-WORD>', 'dogs', 'SENTENCE', 'SUBJ'], ['<NON-WORD>', 'run', 'VP', 'VERB'], ['run', 'quickly', 'VERB', 'ADVERB']]\
+>> CORRECT\
+\
+\
+PARSING SENTENCE bad people run quickly\
+Got dependencies: \
+[['<NON-WORD>', '<NON-WORD>', 'SENTENCE', 'VP'], ['<NON-WORD>', 'people', 'SENTENCE', 'SUBJ'], ['<NON-WORD>', 'run', 'VP', 'VERB'], ['run', 'quickly', 'VERB', 'ADVERB'], ['people', 'bad', 'SUBJ', 'ADJ']]\
+>> CORRECT\
+\
+\
+PARSING SENTENCE the bad people run quickly\
+Got dependencies: \
+[['<NON-WORD>', '<NON-WORD>', 'SENTENCE', 'VP'], ['<NON-WORD>', 'people', 'SENTENCE', 'SUBJ'], ['<NON-WORD>', 'run', 'VP', 'VERB'], ['run', 'quickly', 'VERB', 'ADVERB'], ['people', 'bad', 'SUBJ', 'ADJ'], ['people', 'the', 'SUBJ', 'DET']]\
+>> CORRECT\
+\
+PARSING SENTENCE the cats quickly chase a woman\
+Got dependencies: \
+[['<NON-WORD>', '<NON-WORD>', 'SENTENCE', 'VP'], ['<NON-WORD>', 'cats', 'SENTENCE', 'SUBJ'], ['<NON-WORD>', 'chase', 'VP', 'VERB'], ['<NON-WORD>', 'woman', 'VP', 'OBJ'], ['chase', 'quickly', 'VERB', 'ADVERB'], ['woman', 'a', 'OBJ', 'DET'], ['cats', 'the', 'SUBJ', 'DET']]\
+>> CORRECT\
+\
+\
+PARSING SENTENCE the cats quickly chase mice\
+Got dependencies: \
+[['<NON-WORD>', '<NON-WORD>', 'SENTENCE', 'VP'], ['<NON-WORD>', 'cats', 'SENTENCE', 'SUBJ'], ['<NON-WORD>', 'chase', 'VP', 'VERB'], ['<NON-WORD>', 'mice', 'VP', 'OBJ'], ['chase', 'quickly', 'VERB', 'ADVERB'], ['cats', 'the', 'SUBJ', 'DET\'92]]\
+>> CORRECT\
+\
+\
+PARSING SENTENCE dogs run from cats\
+Got dependencies: \
+[['<NON-WORD>', '<NON-WORD>', 'SENTENCE', 'VP'], ['<NON-WORD>', 'dogs', 'SENTENCE', 'SUBJ'], ['<NON-WORD>', 'run', 'VP', 'VERB']]\
+\cf4 >> ! INCORRECT\
+\cf2 \
+PARSING SENTENCE the dogs run from cats\
+Got dependencies: \
+[['<NON-WORD>', '<NON-WORD>', 'SENTENCE', 'VP'], ['<NON-WORD>', 'dogs', 'SENTENCE', 'SUBJ'], ['<NON-WORD>', 'run', 'VP', 'VERB'], ['dogs', 'the', 'SUBJ', 'DET']]\
+\cf4 >> ! INCORRECT\
+\cf2 \
+\
+PARSING SENTENCE the cats run to mice from dogs\
+Got dependencies: \
+[['<NON-WORD>', '<NON-WORD>', 'SENTENCE', 'VP'], ['<NON-WORD>', 'cats', 'SENTENCE', 'SUBJ'], ['<NON-WORD>', 'run', 'VP', 'VERB'], ['cats', 'the', 'SUBJ', 'DET']]\
+\cf4 >> ! INCORRECT\
+\cf2 \
+\
+PARSING SENTENCE cats love the mice in people\
+Got dependencies: \
+[['<NON-WORD>', '<NON-WORD>', 'SENTENCE', 'VP'], ['<NON-WORD>', 'cats', 'SENTENCE', 'SUBJ'], ['<NON-WORD>', 'love', 'VP', 'VERB'], ['<NON-WORD>', 'mice', 'VP', 'OBJ'], ['mice', 'people', 'OBJ', 'PREP_P'], ['mice', 'the', 'OBJ', 'DET'], ['people', 'in', 'PREP_P', 'PREP']]\
+>> CORRECT\
+\
+\
+PARSING SENTENCE the man of the people saw the mice\
+Got dependencies: \
+[['<NON-WORD>', '<NON-WORD>', 'SENTENCE', 'VP'], ['<NON-WORD>', 'man', 'SENTENCE', 'SUBJ'], ['<NON-WORD>', 'saw', 'VP', 'VERB'], ['<NON-WORD>', 'mice', 'VP', 'OBJ'], ['mice', 'the', 'OBJ', 'DET'], ['man', 'people', 'SUBJ', 'PREP_P'], ['man', 'the', 'SUBJ', 'DET'], ['people', 'of', 'PREP_P', 'PREP'], ['people', 'the', 'PREP_P', 'DET']]\
+>> CORRECT\
+\
+\
+PARSING SENTENCE cats are people\
+Got dependencies: \
+[['<NON-WORD>', '<NON-WORD>', 'SENTENCE', 'VP'], ['<NON-WORD>', 'cats', 'SENTENCE', 'SUBJ'], ['<NON-WORD>', 'are', 'VP', 'VERB'], ['<NON-WORD>', 'people', 'VP', 'OBJ']]\
+>> CORRECT\
+\
+\
+PARSING SENTENCE people are bad\
+Got dependencies: \
+[['<NON-WORD>', '<NON-WORD>', 'SENTENCE', 'VP'], ['<NON-WORD>', 'people', 'SENTENCE', 'SUBJ'], ['<NON-WORD>', 'are', 'VP', 'VERB'], ['<NON-WORD>', '<NON-WORD>', 'VP', 'OBJ']]\
+>> CORRECT\
+\
+\
+PARSING SENTENCE big dogs are bad\
+Got dependencies: \
+[['<NON-WORD>', '<NON-WORD>', 'SENTENCE', 'VP'], ['<NON-WORD>', 'dogs', 'SENTENCE', 'SUBJ'], ['<NON-WORD>', 'are', 'VP', 'VERB'], ['<NON-WORD>', '<NON-WORD>', 'VP', 'OBJ'], ['dogs', 'big', 'SUBJ', 'ADJ']]\
+>> CORRECT\
+\
+\
+PARSING SENTENCE big bad dogs run\
+Got dependencies: \
+[['<NON-WORD>', '<NON-WORD>', 'SENTENCE', 'VP'], ['<NON-WORD>', 'dogs', 'SENTENCE', 'SUBJ'], ['<NON-WORD>', 'run', 'VP', 'VERB'], ['dogs', 'bad', 'SUBJ', 'ADJ']]\
+>> ! INCORRECT - only gets one adjective, like in the dependency parser\
+\
+\
+PARSING SENTENCE people are big bad cats\
+Got dependencies: \
+[['<NON-WORD>', '<NON-WORD>', 'SENTENCE', 'VP'], ['<NON-WORD>', 'people', 'SENTENCE', 'SUBJ'], ['<NON-WORD>', 'are', 'VP', 'VERB'], ['<NON-WORD>', 'cats', 'VP', 'OBJ'], ['cats', 'bad', 'OBJ', 'ADJ']]\
+\cf4 >> ! INCORRECT\cf2  - only gets one adjective, like in the dependency parser\
+\
+PARSING SENTENCE big bad cats are people\
+Got dependencies: \
+[['<NON-WORD>', '<NON-WORD>', 'SENTENCE', 'VP'], ['<NON-WORD>', 'cats', 'SENTENCE', 'SUBJ'], ['<NON-WORD>', 'are', 'VP', 'VERB'], ['<NON-WORD>', 'people', 'VP', 'OBJ'], ['cats', 'bad', 'SUBJ', 'ADJ']]\
+\cf4 >> ! INCORRECT\cf2 - only gets one adjective, like in the dependency parser\
+\
+--- 686.8206479549408 seconds ---\
+\
+Vs original parser:--- 280.82041692733765 seconds ---\
+\
+\
+}

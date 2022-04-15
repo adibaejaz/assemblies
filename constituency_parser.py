@@ -2,7 +2,7 @@
 import brain
 import brain_util as bu
 import numpy as np
-# import pptree
+import pptree
 import json
 import copy
 
@@ -12,6 +12,7 @@ from enum import Enum
 import time
 
 from test_sentences import TEST_SENTENCES
+
 
 # BrainAreas
 LEX = "LEX"
@@ -23,11 +24,16 @@ PREP = "PREP"
 PREP_P = "PREP_P"
 ADJ = "ADJ"
 ADVERB = "ADVERB"
+SENTENCE = "SENTENCE"
+VP = "VP"
 
 # Unique to Russian
 NOM = "NOM"
 ACC = "ACC"
 DAT = "DAT"
+
+
+word_times = []
 
 # Fixed area stats for explicit areas
 LEX_SIZE = 27
@@ -40,9 +46,9 @@ INHIBIT = "INHIBIT"
 ACTIVATE_ONLY = "ACTIVATE_ONLY"
 CLEAR_DET = "CLEAR_DET"
 
-AREAS = [LEX, DET, SUBJ, OBJ, VERB, ADJ, ADVERB, PREP, PREP_P]
+AREAS = [LEX, DET, SUBJ, OBJ, VERB, ADJ, ADVERB, PREP, PREP_P, SENTENCE, VP]
 EXPLICIT_AREAS = [LEX]
-RECURRENT_AREAS = [SUBJ, OBJ, VERB, ADJ, ADVERB, PREP, PREP_P]
+RECURRENT_AREAS = [SUBJ, OBJ, VERB, ADJ, ADVERB, PREP, PREP_P, SENTENCE, VP]
 
 RUSSIAN_AREAS = [LEX, NOM, VERB, ACC, DAT]
 RUSSIAN_EXPLICIT_AREAS = [LEX]
@@ -385,7 +391,7 @@ RUSSIAN_LEXEME_DICT = {
     "dayet": generic_russian_ditransitive_verb(4)
 }
 
-ENGLISH_READOUT_RULES = {
+ENGLISH_DEPENDENCY_READOUT_RULES = {
     VERB: [LEX, SUBJ, OBJ, PREP_P, ADVERB, ADJ],
     SUBJ: [LEX, DET, ADJ, PREP_P],
     OBJ: [LEX, DET, ADJ, PREP_P],
@@ -395,6 +401,20 @@ ENGLISH_READOUT_RULES = {
     DET: [LEX],
     ADVERB: [LEX],
     LEX: [],
+}
+
+ENGLISH_CONSTITUENCY_READOUT_RULES = {
+    VERB: [LEX, ADVERB],
+    SUBJ: [LEX, DET, ADJ, PREP_P],
+    OBJ: [LEX, DET, ADJ, PREP_P],
+    PREP_P: [LEX, PREP, ADJ, DET],
+    PREP: [LEX],
+    ADJ: [LEX],
+    DET: [LEX],
+    ADVERB: [LEX],
+    LEX: [],
+    SENTENCE: [LEX, SUBJ, VP],  # TODO: WHAT HAPPENS WHEN WE ADD LEX?
+    VP: [LEX, VERB, OBJ]
 }
 
 RUSSIAN_READOUT_RULES = {
@@ -407,12 +427,14 @@ RUSSIAN_READOUT_RULES = {
 
 
 class ParserBrain(brain.Brain):
-    def __init__(self, p, lexeme_dict={}, all_areas=[], recurrent_areas=[], initial_areas=[], readout_rules={}):
+    def __init__(self, p, lexeme_dict={}, all_areas=[], recurrent_areas=[], initial_areas=[],
+                 readout_rules={}):
         brain.Brain.__init__(self, p)
         self.lexeme_dict = lexeme_dict
         self.all_areas = all_areas
         self.recurrent_areas = recurrent_areas
         self.initial_areas = initial_areas
+        # self.initial_fibers = initial_fibers
 
         self.fiber_states = defaultdict()
         self.area_states = defaultdict(set)
@@ -565,14 +587,15 @@ class RussianParserBrain(ParserBrain):
 
 
 class EnglishParserBrain(ParserBrain):
-    def __init__(self, p, non_LEX_n=1000000, non_LEX_k=100, LEX_k=20,
-                 default_beta=0.1, LEX_beta=1.0, recurrent_beta=0.05, interarea_beta=0.5, verbose=False):
+    def __init__(self, p, non_LEX_n=10000, non_LEX_k=100, LEX_k=20,
+                 default_beta=0.2, LEX_beta=1.0, recurrent_beta=0.05, interarea_beta=0.5, verbose=False):
         ParserBrain.__init__(self, p,
                              lexeme_dict=LEXEME_DICT,
                              all_areas=AREAS,
                              recurrent_areas=RECURRENT_AREAS,
-                             initial_areas=[LEX, SUBJ, VERB],
-                             readout_rules=ENGLISH_READOUT_RULES)
+                             initial_areas=[LEX, SUBJ, VERB, SENTENCE, VP],
+                             # readout_rules=ENGLISH_DEPENDENCY_READOUT_RULES)
+                             readout_rules=ENGLISH_CONSTITUENCY_READOUT_RULES)
         self.verbose = verbose
 
         LEX_n = LEX_SIZE * LEX_k
@@ -587,6 +610,8 @@ class EnglishParserBrain(ParserBrain):
         self.add_area(PREP_P, non_LEX_n, non_LEX_k, default_beta)
         self.add_area(DET, non_LEX_n, DET_k, default_beta)
         self.add_area(ADVERB, non_LEX_n, non_LEX_k, default_beta)
+        self.add_area(SENTENCE, non_LEX_n, non_LEX_k, default_beta)
+        self.add_area(VP, non_LEX_n, non_LEX_k, default_beta)
 
         # LEX: all areas -> * strong, * -> * can be strong
         # non LEX: other areas -> * (?), LEX -> * strong, * -> * weak
@@ -729,14 +754,17 @@ class ReadoutMethod(Enum):
     NATURAL_READOUT = 3
 
 
-def parse(sentence="dogs chase cats in man from woman", language="English", p=0.1, LEX_k=20,
-          project_rounds=30, verbose=True, debug=False, readout_method=ReadoutMethod.FIBER_READOUT):
+def parse(sentence="the cats chase the bad mice", language="English", p=0.1, LEX_k=27,
+          project_rounds=20, verbose=True, debug=False, readout_method=ReadoutMethod.FIBER_READOUT):
+
+    print("PARSING SENTENCE", sentence)
+
     if language == "English":
         b = EnglishParserBrain(p, LEX_k=LEX_k, verbose=verbose)
         lexeme_dict = LEXEME_DICT
         all_areas = AREAS
         explicit_areas = EXPLICIT_AREAS
-        readout_rules = ENGLISH_READOUT_RULES
+        readout_rules = ENGLISH_CONSTITUENCY_READOUT_RULES
 
     if language == "Russian":
         b = RussianParserBrain(p, LEX_k=LEX_k, verbose=verbose)
@@ -757,11 +785,24 @@ def parseHelper(b, sentence, p, LEX_k, project_rounds, verbose, debug,
 
     extreme_debug = False
 
+    INITIAL_FIBERS = [FiberRule(DISINHIBIT, VP, OBJ, 0),
+                      FiberRule(DISINHIBIT, VP, VERB, 0),
+                      FiberRule(DISINHIBIT, SENTENCE, SUBJ, 0),
+                      FiberRule(DISINHIBIT, SENTENCE, VP, 0),
+                      ]
+
+    for rule in INITIAL_FIBERS:
+        b.applyRule(rule)
+
     for word in sentence:
+
+        word_time = time.time()
+
+
         lexeme = lexeme_dict[word]
         b.activateWord(LEX, word)
         if verbose:
-            print("Activated word: " + word)
+            print("Activated Dword: " + word)
             print(b.areas[LEX].winners)
 
         for rule in lexeme["PRE_RULES"]:
@@ -808,8 +849,7 @@ def parseHelper(b, sentence, p, LEX_k, project_rounds, verbose, debug,
             print("Starting debugger after the word " + word)
             debugger.run()
 
-        print("VERB WINNERS:")
-        print(sorted(b.areas[VERB].winners))
+        word_times.append(time.time() - start_time)
 
     # Readout
     # For all readout methods, unfix assemblies and remove plasticity.
@@ -820,16 +860,25 @@ def parseHelper(b, sentence, p, LEX_k, project_rounds, verbose, debug,
     dependencies = []
 
     def read_out(area, mapping):
+
         to_areas = mapping[area]
         b.project({}, {area: to_areas})
+        b.project({}, {area: [LEX]})
+
         this_word = b.getWord(LEX)
+        if verbose:
+            print("RETRIEVED WORD FROM LEX")
+            print(this_word)
 
         for to_area in to_areas:
             if to_area == LEX:
                 continue
             b.project({}, {to_area: [LEX]})
             other_word = b.getWord(LEX)
-            dependencies.append([this_word, other_word, to_area])
+            if verbose:
+                print("RETRIEVED DEPENDENCY")
+                print([this_word, other_word, to_area])
+            dependencies.append([this_word, other_word, area, to_area])
 
         for to_area in to_areas:
             if to_area != LEX:
@@ -843,18 +892,19 @@ def parseHelper(b, sentence, p, LEX_k, project_rounds, verbose, debug,
             else:
                 treeify(values, key_node)
 
-    # if readout_method == ReadoutMethod.FIXED_MAP_READOUT:
-    # Try "reading out" the parse.
-    # To do so, start with final assembly in VERB
-    # project VERB->SUBJ,OBJ,LEX
+    if readout_method == ReadoutMethod.FIXED_MAP_READOUT:
+        # Try "reading out" the parse.
+        # To do so, start with final assembly in VERB
+        # project VERB->SUBJ,OBJ,LEX
 
-    # parsed = {VERB: read_out(VERB, readout_rules)}
+        parsed = {VERB: read_out(VERB, readout_rules)}
+        # parsed = {SENTENCE: read_out(SENTENCE, readout_rules)}
 
-    # print("Final parse dict: ")
-    # print(parsed)
+        print("Final parse dict: ")
+        print(parsed)
 
-    # root = pptree.Node(VERB)
-    # treeify(parsed[VERB], root)
+        root = pptree.Node(VERB)
+        treeify(parsed[VERB], root)
 
     if readout_method == ReadoutMethod.FIBER_READOUT:
         activated_fibers = b.getActivatedFibers()
@@ -862,7 +912,8 @@ def parseHelper(b, sentence, p, LEX_k, project_rounds, verbose, debug,
             print("Got activated fibers for readout:")
             print(activated_fibers)
 
-        read_out(VERB, activated_fibers)
+        # read_out(VERB, activated_fibers)
+        read_out(SENTENCE, activated_fibers)
         print("Got dependencies: ")
         print(dependencies)
 
@@ -873,18 +924,18 @@ def parseHelper(b, sentence, p, LEX_k, project_rounds, verbose, debug,
 # pptree.print_tree(root)
 
 
-
 def main():
-    # for sentence in TEST_SENTENCES:
-        # parse(sentence=sentence, verbose=False)
-
-    parse(sentence="dogs chase cats who love people", verbose=False)
+    for sentence in TEST_SENTENCES:
+        parse(sentence=sentence, verbose=False)
 
 
 if __name__ == "__main__":
     start_time = time.time()
     main()
     print("--- %s seconds ---" % (time.time() - start_time))
+    print("max word time--- %s seconds ---" % max(word_times))
+    print("min word time--- %s seconds ---" % min(word_times))
+
 
 # TODOs
 # BRAIN
