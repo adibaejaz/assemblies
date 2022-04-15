@@ -11,7 +11,7 @@ from collections import defaultdict
 from enum import Enum
 import time
 
-from test_sentences import RECURSIVE_TEST_SENTENCES
+#from test_sentences import RECURSIVE_TEST_SENTENCES
 
 # BrainAreas
 LEX = "LEX"
@@ -112,7 +112,8 @@ def generic_trans_verb(index):
             FiberRule(DISINHIBIT, VERB, SUBJ, 0),
             FiberRule(DISINHIBIT, VERB, ADVERB, 0),
             AreaRule(DISINHIBIT, ADVERB, 1),
-            # FiberRule(DISINHIBIT, VERB, DP, 0),
+            # AreaRule(DISINHIBIT, DP, 0), # new
+            # FiberRule(DISINHIBIT, VERB, DP, 0), # new 
         ],
         "POST_RULES": [
             FiberRule(INHIBIT, LEX, VERB, 0),
@@ -120,7 +121,8 @@ def generic_trans_verb(index):
             AreaRule(INHIBIT, SUBJ, 0),
             AreaRule(INHIBIT, ADVERB, 0),
             FiberRule(DISINHIBIT, PREP_P, VERB, 0),
-            # FiberRule(INHIBIT, VERB, DP, 0)
+            # AreaRule(INHIBIT, DP, 0), # new
+            # FiberRule(INHIBIT, VERB, DP, 0) # new
         ]
     }
 
@@ -580,8 +582,8 @@ class RussianParserBrain(ParserBrain):
 
 
 class EnglishParserBrain(ParserBrain):
-    def __init__(self, p, non_LEX_n=1000000, non_LEX_k=50, LEX_k=20,
-                 default_beta=0.1, LEX_beta=1.0, recurrent_beta=0.05, interarea_beta=0.5, verbose=False):
+    def __init__(self, p, non_LEX_n=400000, non_LEX_k=30, LEX_k=30, # non lex k smaller; lex k bigger?
+                 default_beta=0.1, LEX_beta=2.0, recurrent_beta=1.0, interarea_beta=1.0, verbose=False):
         ParserBrain.__init__(self, p,
                              lexeme_dict=LEXEME_DICT,
                              all_areas=AREAS,
@@ -612,7 +614,7 @@ class EnglishParserBrain(ParserBrain):
         custom_plasticities = defaultdict(list)
         for area in RECURRENT_AREAS:
             custom_plasticities[LEX].append((area, LEX_beta))
-            custom_plasticities[area].append((LEX, LEX_beta))
+            custom_plasticities[area].append((LEX, 2.0))
             custom_plasticities[area].append((area, recurrent_beta))
             for other_area in RECURRENT_AREAS:
                 if other_area == area:
@@ -774,7 +776,7 @@ class ReadoutMethod(Enum):
 
 
 def parse(sentence="i love you", language="English", p=0.1, LEX_k=20,
-          project_rounds=30, verbose=True, debug=False, readout_method=ReadoutMethod.FIBER_READOUT,
+          project_rounds=300, verbose=True, debug=False, readout_method=ReadoutMethod.FIBER_READOUT,
           limits={0: (0, 2)}, depth=0):  # 3/24: added limits and depth parameter
 
     print("PARSING SENTENCE", sentence)
@@ -826,6 +828,31 @@ def parseHelper(b, sentence, p, LEX_k, project_rounds, verbose, debug,
 
         if limits.get(depth + 1) and i == limits[depth + 1][0]:  # word at the start of depth i+1 sentence
 
+            print("PROJECTING SIG TO DP")
+
+            b.applyRule(AreaRule(DISINHIBIT, DP, 0))
+            b.applyRule(FiberRule(DISINHIBIT, DP, signature_type, 0))
+
+            b.areas[DP].winners = []
+            for k in range(project_rounds):
+                b.project({}, {signature_type: [DP]})
+                if extreme_debug and word == "a":
+                    print("Starting debugger after round " + str(i) + "for word" + word)
+                    debugger.run()
+
+            b.areas[DP].fix_assembly() # freeze assembly in DP
+
+            project_map = b.getProjectMap()
+            b.remember_fibers(project_map)
+
+            print("SIGNATURE DP PROJ MAP", project_map)
+            print("SIG WINNERS:", (sorted(b.areas[signature_type].winners)))
+            print("DP WINNERS:", (sorted(b.areas[DP].winners)))
+
+            b.applyRule(AreaRule(INHIBIT, DP, 0))
+            b.applyRule(FiberRule(INHIBIT, DP, signature_type, 0))
+
+            
             b.cleanSlate()
 
             print("SIG TYPE: ", signature_type)
@@ -835,6 +862,7 @@ def parseHelper(b, sentence, p, LEX_k, project_rounds, verbose, debug,
 
 
             b.cleanSlate()
+
 
 
 
@@ -850,15 +878,9 @@ def parseHelper(b, sentence, p, LEX_k, project_rounds, verbose, debug,
 
                 print(f"TOUCHING {j}: {touch_word}")
 
-
                 # touch each word and execute action sets
                 lexeme = lexeme_dict[touch_word]
                 b.activateWord(LEX, touch_word)
-                b.areas[SUBJ].winners = []
-                b.project({}, {LEX: [SUBJ]})
-
-                print("SUBJ WINNERS:")
-                print(sorted(b.areas[SUBJ].winners))
 
                 # pro
                 if verbose:
@@ -873,6 +895,15 @@ def parseHelper(b, sentence, p, LEX_k, project_rounds, verbose, debug,
                                 b.activated_fibers[rule.area1].add(rule.area2)
                                 b.activated_fibers[rule.area2].add(rule.area1)
 
+                for area in b.getProjectMap().get(LEX):
+                    if area != LEX:
+                        current_area =  area
+                
+                b.areas[current_area].winners = []
+                b.project({}, {LEX: [current_area]})
+
+                print(current_area, " WINNERS:")
+                print(sorted(b.areas[current_area].winners))
 
                 for rule in lexeme["POST_RULES"]:
                     b.applyRule(rule)
@@ -882,33 +913,40 @@ def parseHelper(b, sentence, p, LEX_k, project_rounds, verbose, debug,
                                 b.activated_fibers[rule.area1].add(rule.area2)
                                 b.activated_fibers[rule.area2].add(rule.area1)
 
+                # if j == limits[depth + 1][0] - 1:
+                #     print("PROJECTING CROSS SENTENCE")
+
+                #     b.applyRule(AreaRule(DISINHIBIT, DP, 0))
+                #     b.applyRule(FiberRule(DISINHIBIT, DP, signature_type, 0))
+                #     b.applyRule(FiberRule(DISINHIBIT, DP, VERB, 0))
+
+                #     b.areas[DP].winners = []
+                #     for k in range(project_rounds):
+                #         b.project({}, {signature_type: [DP], VERB: [DP]})
+                #         if extreme_debug and word == "a":
+                #             print("Starting debugger after round " + str(i) + "for word" + word)
+                #             debugger.run()
+
+                #     project_map = b.getProjectMap()
+                #     b.remember_fibers(project_map)
+
+                #     print("ROOT VERB + SIGNATURE  PROJ MAP", project_map)
+
+                #     print("ROOT VERB + SIGNATURE DP WINNERS:", (sorted(b.areas[DP].winners)))
+                #     print("ROOT VERB + SIGNATURE VERB WINNERS:", (sorted(b.areas[VERB].winners)))
+                #     print("ROOT VERB + SIGNATURE SUBJ WINNERS:", (sorted(b.areas[SUBJ].winners)))
+
+
+                #     b.applyRule(AreaRule(INHIBIT, DP, 0))
+                #     b.applyRule(FiberRule(INHIBIT, DP, signature_type, 0))
+                #     b.applyRule(FiberRule(INHIBIT, DP, VERB, 0))
+
 
 
             print("TOUCHED ALL WORDS")
 
-            print("PROJECTING CROSS SENTENCE")
 
-            b.applyRule(AreaRule(DISINHIBIT, DP, 0))
-            b.applyRule(FiberRule(DISINHIBIT, DP, signature_type, 0))
-            b.applyRule(FiberRule(DISINHIBIT, DP, VERB, 0))
 
-            b.areas[DP].winners = []
-            for k in range(project_rounds):
-                b.project({}, {signature_type: [DP], VERB: [DP]})
-                if extreme_debug and word == "a":
-                    print("Starting debugger after round " + str(i) + "for word" + word)
-                    debugger.run()
-
-            project_map = b.getProjectMap()
-            b.remember_fibers(project_map)
-
-            print("ROOT VERB + SIGNATURE  PROJ MAP", project_map)
-
-            print("ROOT VERB + SIGNATURE DP WINNERS:", (sorted(b.areas[DP].winners)))
-
-            b.applyRule(AreaRule(INHIBIT, DP, 0))
-            b.applyRule(FiberRule(INHIBIT, DP, signature_type, 0))
-            b.applyRule(FiberRule(INHIBIT, DP, VERB, 0))
 
         if limits.get(depth + 1) and i in range(limits[depth + 1][0], limits[depth + 1][1] + 1):
             print("continuing", i)
@@ -916,12 +954,22 @@ def parseHelper(b, sentence, p, LEX_k, project_rounds, verbose, debug,
 
         lexeme = lexeme_dict[word]
         b.activateWord(LEX, word)
-        if verbose:
+        if True:
             print("Activated word: " + word)
             print(b.areas[LEX].winners)
 
         for rule in lexeme["PRE_RULES"]:
             b.applyRule(rule)
+
+        for area in b.getProjectMap().get(LEX):
+            if area != LEX:
+                current_area =  area
+
+        # print("CURRENT AREA: ", current_area)
+        
+        if current_area == VERB and depth > 0: # VERB-DP PROJ FOR INNER VERB
+            b.applyRule(AreaRule(DISINHIBIT, DP, 0))
+            b.applyRule(FiberRule(DISINHIBIT, VERB, DP, 0))
 
         proj_map = b.getProjectMap()
         if verbose:
@@ -932,6 +980,7 @@ def parseHelper(b, sentence, p, LEX_k, project_rounds, verbose, debug,
                 b.areas[area].fix_assembly()
                 if True:
                     print("FIXED assembly bc not LEX->this area in: " + area)
+                    # print("SUBJ WINNERS: ", sorted(b.areas[area].winners))
             elif area != LEX:
                 b.areas[area].unfix_assembly()
                 b.areas[area].winners = []
@@ -950,27 +999,48 @@ def parseHelper(b, sentence, p, LEX_k, project_rounds, verbose, debug,
             #         proj_map = b.getProjectMap()
             #         print("PROJ MAP AFTER PROJECTING = ")
             #         print(proj_map)
+            #if word == "chase":
+                #print("SUBJ WINNERS DURING CHASE PROJ: ", sorted(b.areas[SUBJ].winners))
             if k == project_rounds - 1:
                 proj_map = b.getProjectMap()
                 print("PROJ MAP AFTER PROJECTING FOR WORD", i, word)
                 print(proj_map)
-            if extreme_debug and word == "a":
+            if extreme_debug:
                 print("Starting debugger after round " + str(i) + "for word" + word)
                 debugger.run()
 
-        current_area_proj = b.getProjectMap().get(LEX)
-        for area in current_area_proj:
-            if area != LEX:
-                current_area = area
+        # for area in b.getProjectMap().get(LEX):
+        #     if area != LEX:
+        #         current_area =  area
 
         signature_type = current_area
 
         print(f"{current_area} WINNERS:", sorted(b.areas[current_area].winners))
-        #
-        b.project({}, {area: [LEX]})
-        this_word = b.getWord(LEX)
-        print("Just parsed this_word", this_word, "with  LEX winners", sorted(b.areas[LEX].winners))
+        if current_area == VERB:
+                    print(f"DP WINNERS:", sorted(b.areas[DP].winners))
+        
+        # fix obj winners?
+        # if current_area == OBJ:
+        #     b.areas[OBJ].fix_assembly()
+        #     if True:
+        #         print("FIXED assembly (OBJ) bc not LEX->this area in: " + area)
 
+        # b.no_plasticity = True
+        # b.areas[LEX].unfix_assembly()
+        # b.project({}, {current_area: [LEX]})
+        # word_in_lex = b.getWord(LEX)
+        # print("GOT WORD IN LEX: ", word_in_lex)
+        # print("WINNERS IN LEX: ", b.areas[LEX].winners)
+        # b.no_plasticity = False
+
+
+
+        # print("SUBJ WINNERS:")
+        # print(sorted(b.areas[SUBJ].winners))
+        #
+        # print("OBJ WINNERS:")
+        # print(sorted(b.areas[OBJ].winners))
+        #
 
 
 
@@ -983,6 +1053,70 @@ def parseHelper(b, sentence, p, LEX_k, project_rounds, verbose, debug,
 
         for rule in lexeme["POST_RULES"]:
             b.applyRule(rule)
+
+        if current_area == VERB and depth > 0:
+            b.applyRule(AreaRule(INHIBIT, DP, 0))
+            b.applyRule(FiberRule(INHIBIT, VERB, DP, 0))
+
+        # if current_area == VERB:
+        #     b.applyRule(AreaRule(DISINHIBIT, DP, 0))
+        #     b.applyRule(FiberRule(DISINHIBIT, DP, LEX, 0))
+        #     b.applyRule(FiberRule(DISINHIBIT, DP, VERB, 0))
+        #
+        #     for k in range(project_rounds):
+        #         b.project({}, {LEX: [DP, LEX], DP: [LEX, DP, VERB], VERB: [DP, VERB]})
+        #         # b.parse_project()
+        #
+        #     proj_map = b.getProjectMap()
+        #     b.remember_fibers(proj_map)
+        #     print("Proj map DP-LEX, DP-VERB", proj_map)
+        #
+        #     print("DP WINNERS post DP-LEX, DP-VERB proj:")
+        #     print(sorted(b.areas[DP].winners))
+        #
+        #     print("VERB WINNERS post DP-LEX, DP-VERB proj:")
+        #     print(sorted(b.areas[VERB].winners))
+        #
+        #
+        #     b.applyRule(AreaRule(INHIBIT, DP, 0))
+        #     b.applyRule(FiberRule(INHIBIT, DP, VERB, 0))
+        #     b.applyRule(FiberRule(INHIBIT, DP, LEX, 0))
+
+        # if current_area == VERB:
+        #     b.applyRule(AreaRule(DISINHIBIT, DP, 0))
+        #     b.applyRule(FiberRule(DISINHIBIT, DP, LEX, 0))
+        #
+        #     for k in range(project_rounds):
+        #         b.project({}, {LEX: [DP, LEX]})
+        #
+        #     proj_map = b.getProjectMap()
+        #     b.remember_fibers(proj_map)
+        #     print("Proj map DP-LEX", proj_map)
+        #
+        #     print("DP WINNERS post DP-LEX proj:")
+        #     print(sorted(b.areas[DP].winners))
+        #
+        #     print("VERB WINNERS post DP-LEX proj:")
+        #     print(sorted(b.areas[VERB].winners))
+        #
+        #     b.applyRule(FiberRule(INHIBIT, DP, LEX, 0))
+        #     b.applyRule(FiberRule(DISINHIBIT, DP, VERB, 0))
+        #
+        #     for k in range(project_rounds):
+        #         b.project({}, {DP: [DP, VERB], VERB: [DP, VERB]})
+        #
+        #     proj_map = b.getProjectMap()
+        #     b.remember_fibers(proj_map)
+        #     print("Proj map DP-VERB", proj_map)
+        #
+        #     print("DP WINNERS post DP-VERB proj:")
+        #     print(sorted(b.areas[DP].winners))
+        #
+        #     print("VERB WINNERS post DP-VERB proj:")
+        #     print(sorted(b.areas[VERB].winners))
+        #
+        #     b.applyRule(AreaRule(INHIBIT, DP, 0))
+        #     b.applyRule(FiberRule(INHIBIT, DP, VERB, 0))
 
         if debug:
             print("Starting debugger after the word " + word)
@@ -998,28 +1132,30 @@ def parseHelper(b, sentence, p, LEX_k, project_rounds, verbose, debug,
 
     def read_out(area, mapping):
 
-        if True:
-            print("BEGINNING READ OUT FROM", area)
-            print(f"{area} WINNERS DURING READOUT", sorted(b.areas[area].winners))
+        if verbose:
+            print("BEGINNING READ OUT")
+            print("VERB WINNERS PRE-READOUT FROM AREA", area)
+            print(sorted(b.areas[VERB].winners))
 
 
         to_areas = mapping[area]
         b.project({}, {area: to_areas})
         this_word = b.getWord(LEX)
-        print("Just read this_word again", this_word)
 
 
+        if True:
+            print(f"{area} WINNERS DURING READOUT PRE-LEX PROJ", sorted(b.areas[area].winners))
 
         for to_area in to_areas:
             if to_area == LEX:
                 continue
             b.project({}, {to_area: [LEX]})
             other_word = b.getWord(LEX)
-            print("Just read other_word", other_word)
-
             dependencies.append([this_word, other_word, area, to_area])
 
 
+        if verbose:
+            print(f"{area} WINNERS DURING READOUT POST-LEX PROJ", sorted(b.areas[area].winners))
 
         for to_area in to_areas:
             if to_area != LEX:
@@ -1030,7 +1166,7 @@ def parseHelper(b, sentence, p, LEX_k, project_rounds, verbose, debug,
                         print("MAPPING", mapping)
                 else:
                     print("DP WINNERS DURING READOUT POST-LEX PROJ", sorted(b.areas[DP].winners))
-                    # b.project({}, {to_area: [VERB]})
+                    b.project({}, {to_area: [VERB]})
                     # read_out(VERB, mapping)
 
 
